@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Non-AC Single Room placeholder">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b45309"/><stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <pattern id="p" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M0 40L40 0M-10 10L10 -10M30 50L50 30" stroke="rgba(255,255,255,.10)" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#g)"/>
+  <rect width="800" height="600" fill="url(#p)"/>
+  <g transform="translate(400 250)" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="-70" y="-52" width="140" height="104" rx="10"/>
+    <circle cx="-30" cy="-18" r="15"/>
+    <path d="M-70 34L-20 -8l32 26 24-20 34 28"/>
+  </g>
+  <text x="400" y="392" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif"
+        font-size="40" font-weight="700" fill="#fff">Non-AC Single Room</text>
+  <text x="400" y="440" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif"
+        font-size="23" fill="rgba(255,255,255,.92)">Replace with a real photo</text>
+  <text x="400" y="478" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif"
+        font-size="19" fill="rgba(255,255,255,.72)">Landscape, bright daylight, 1600 &#215; 1200 or larger</text>
+</svg>
