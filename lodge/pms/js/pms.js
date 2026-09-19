@@ -82,7 +82,9 @@
       allSegments:'All purposes', seeded:'Sample data loaded so you can see how it works',
       demoTag:'DEMO', demoTxt:'Sample lodge data. Press play to watch a day at the desk run by itself.',
       simStart:'Run simulation', simStop:'Pause simulation', resetDemo:'Reset demo',
-      hFeed:'Live activity', feedEmpty:'Press "Run simulation" to see arrivals, departures and housekeeping happen live.',
+      hFeed:'Live activity', loadingRooms:'Loading rooms\u2026',
+      simIdle:'Nothing left to do \u2014 every room is settled. Press Reset demo to start again.',
+      feedEmpty:'Press "Run simulation" to see arrivals, departures and housekeeping happen live.',
       evIn:'checked in to room', evOut:'checked out of room', evClean:'made ready',
       evPaid:'paid balance for room', evExtend:'extended their stay in room',
       forNights:'for', nightsWord:'nights', resetDone:'Demo data rebuilt'
@@ -122,7 +124,9 @@
       allSegments:'అన్ని కారణాలు', seeded:'ఎలా పనిచేస్తుందో చూడటానికి నమూనా డేటా లోడ్ అయ్యింది',
       demoTag:'డెమో', demoTxt:'నమూనా డేటా. ప్లే నొక్కితే రిసెప్షన్‌లో ఒక రోజు ఎలా గడుస్తుందో చూడవచ్చు.',
       simStart:'సిమ్యులేషన్ ప్రారంభించు', simStop:'ఆపు', resetDemo:'డెమో రీసెట్',
-      hFeed:'లైవ్ కార్యకలాపాలు', feedEmpty:'"సిమ్యులేషన్ ప్రారంభించు" నొక్కితే రాకపోకలు, హౌస్‌కీపింగ్ ప్రత్యక్షంగా కనిపిస్తాయి.',
+      hFeed:'లైవ్ కార్యకలాపాలు', loadingRooms:'గదులు లోడ్ అవుతున్నాయి\u2026',
+      simIdle:'ఇప్పుడు చేయడానికి ఏమీ లేదు. మళ్ళీ చూడాలంటే "డెమో రీసెట్" నొక్కండి.',
+      feedEmpty:'"సిమ్యులేషన్ ప్రారంభించు" నొక్కితే రాకపోకలు, హౌస్‌కీపింగ్ ప్రత్యక్షంగా కనిపిస్తాయి.',
       evIn:'చెక్-ఇన్ అయ్యారు, గది', evOut:'చెక్-అవుట్ అయ్యారు, గది', evClean:'సిద్ధం చేయబడింది',
       evPaid:'బ్యాలెన్స్ చెల్లించారు, గది', evExtend:'బస పొడిగించారు, గది',
       forNights:'', nightsWord:'రాత్రులు', resetDone:'డెమో డేటా మళ్ళీ తయారైంది'
@@ -827,7 +831,11 @@
     if (leaving.length)  choices.push('out', 'out');
     if (cleaning.length) choices.push('clean', 'clean');
     if (owing.length)    choices.push('pay');
-    if (!choices.length) { stopSim(); return; }
+    if (!choices.length) {
+      logEvent('clean', esc(t('simIdle')));
+      stopSim();
+      return;
+    }
 
     var pick = choices[Math.floor(Math.random() * choices.length)];
 
@@ -1022,6 +1030,10 @@
 
   function refresh() {
     renderBoard(); renderToday(); renderRegister(); renderGuests(); renderReports();
+    // Tapping play before the rooms exist finds nothing to do and stops at
+    // once, which is indistinguishable from a dead button.
+    var btn = $('#simBtn');
+    if (btn) btn.disabled = !DB.rooms.length;
   }
 
   function init() {

@@ -328,3 +328,10 @@ main{padding:16px;max-width:1400px;margin-inline:auto}
 .feed .ft{display:block;font-size:11px;color:var(--ink-3);margin-top:2px;font-variant-numeric:tabular-nums}
 .feed b{font-weight:800}
 .feed .empty-feed{display:block;color:var(--ink-3);font-style:italic;padding:14px 2px;font-size:13px}
+
+/* shown until the room board has rendered */
+.board-loading{
+  padding:26px 4px;color:var(--ink-3);font-size:14px;font-style:italic;
+}
+.sim[disabled]{opacity:.5;cursor:default}
+.sim[disabled]:hover{background:#fff}

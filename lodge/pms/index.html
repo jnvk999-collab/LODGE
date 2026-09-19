@@ -38,7 +38,7 @@
     <span class="demo-tag" data-i="demoTag">DEMO</span>
     <span class="demo-txt" data-i="demoTxt">Sample lodge data. Press play to watch a day at the desk run by itself.</span>
     <div class="demo-act">
-      <button class="sim" id="simBtn" type="button"><span class="sim-ic" aria-hidden="true">&#9654;</span><span id="simLabel" data-i="simStart">Run simulation</span></button>
+      <button class="sim" id="simBtn" type="button" disabled><span class="sim-ic" aria-hidden="true">&#9654;</span><span id="simLabel" data-i="simStart">Run simulation</span></button>
       <button class="sim sim-alt" id="simSpeed" type="button">1&times;</button>
       <button class="sim sim-alt" id="resetBtn" type="button" data-i="resetDemo">Reset demo</button>
     </div>
@@ -60,7 +60,7 @@
     <div class="occ-pill"><b id="occPct">0%</b> <span data-i="occupied">occupied</span></div>
   </div>
   <div class="board-split">
-    <div class="floors" id="floors"></div>
+    <div class="floors" id="floors"><p class="board-loading" data-i="loadingRooms">Loading rooms…</p></div>
     <aside class="feed-box">
       <h2><span class="live-dot" id="liveDot" aria-hidden="true"></span><span data-i="hFeed">Live activity</span></h2>
       <ol class="feed" id="feed"></ol>
