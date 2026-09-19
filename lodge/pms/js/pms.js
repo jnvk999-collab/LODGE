@@ -10,6 +10,22 @@
   var KEY = 'lodge.pms.v1';
   var C = window.LODGE;
 
+  /* Names are drawn as matched pairs rather than mixing two random pools,
+     which otherwise produces combinations no real guest has. Shared by the
+     seed and the simulator. */
+  var DEMO_NAMES = [
+    { first: ['Ravi','Suresh','Naveen','Mahesh','Kiran','Rajesh','Bhaskar','Venkat','Srinivas','Prasad'],
+      last:  ['Kumar','Reddy','Naidu','Rao','Chowdary','Yadav','Babu'] },
+    { first: ['Lakshmi','Anitha','Sridevi','Padma','Sunitha','Bhavani','Swapna','Vijaya'],
+      last:  ['Reddy','Devi','Naidu','Rao','Kumari','Chowdary'] },
+    { first: ['Imran','Arif','Rafi','Khaleel','Mastan','Nazeer'],
+      last:  ['Shaik','Khan','Basha','Ahmed'] },
+    { first: ['Fathima','Yasmin','Nasreen','Shabana','Ayesha'],
+      last:  ['Begum','Shaik','Khatoon'] }
+  ];
+  var DEMO_TOWNS = ['Proddatur','Pulivendula','Rajampet','Jammalamadugu','Mydukur','Badvel','Kurnool',
+                    'Nandyal','Tirupati','Hyderabad','Bengaluru','Chennai','Anantapur','Nellore'];
+
   var SEGMENTS = [
     ['pilgrim',   'Pilgrim / darshan',        'యాత్రికులు'],
     ['medical',   'Hospital / patient care',  'ఆసుపత్రి'],
@@ -63,7 +79,13 @@
       msgIn:'Checked in', msgOut:'Checked out', msgSaved:'Saved', msgBackup:'Backup downloaded',
       msgRestored:'Data restored', msgBadFile:'That file could not be read',
       confirmOut:'Check out this guest?', balanceDue:'Balance to collect',
-      allSegments:'All purposes', seeded:'Sample data loaded so you can see how it works'
+      allSegments:'All purposes', seeded:'Sample data loaded so you can see how it works',
+      demoTag:'DEMO', demoTxt:'Sample lodge data. Press play to watch a day at the desk run by itself.',
+      simStart:'Run simulation', simStop:'Pause simulation', resetDemo:'Reset demo',
+      hFeed:'Live activity', feedEmpty:'Press "Run simulation" to see arrivals, departures and housekeeping happen live.',
+      evIn:'checked in to room', evOut:'checked out of room', evClean:'made ready',
+      evPaid:'paid balance for room', evExtend:'extended their stay in room',
+      forNights:'for', nightsWord:'nights', resetDone:'Demo data rebuilt'
     },
     te: {
       tabBoard:'గదుల బోర్డు', tabToday:'ఈ రోజు', tabRegister:'అతిథుల రిజిస్టర్',
@@ -97,7 +119,13 @@
       msgBackup:'బ్యాకప్ డౌన్‌లోడ్ అయ్యింది', msgRestored:'డేటా రీస్టోర్ అయ్యింది',
       msgBadFile:'ఆ ఫైల్ చదవలేకపోయాం',
       confirmOut:'ఈ అతిథిని చెక్-అవుట్ చేయాలా?', balanceDue:'వసూలు చేయవలసినది',
-      allSegments:'అన్ని కారణాలు', seeded:'ఎలా పనిచేస్తుందో చూడటానికి నమూనా డేటా లోడ్ అయ్యింది'
+      allSegments:'అన్ని కారణాలు', seeded:'ఎలా పనిచేస్తుందో చూడటానికి నమూనా డేటా లోడ్ అయ్యింది',
+      demoTag:'డెమో', demoTxt:'నమూనా డేటా. ప్లే నొక్కితే రిసెప్షన్‌లో ఒక రోజు ఎలా గడుస్తుందో చూడవచ్చు.',
+      simStart:'సిమ్యులేషన్ ప్రారంభించు', simStop:'ఆపు', resetDemo:'డెమో రీసెట్',
+      hFeed:'లైవ్ కార్యకలాపాలు', feedEmpty:'"సిమ్యులేషన్ ప్రారంభించు" నొక్కితే రాకపోకలు, హౌస్‌కీపింగ్ ప్రత్యక్షంగా కనిపిస్తాయి.',
+      evIn:'చెక్-ఇన్ అయ్యారు, గది', evOut:'చెక్-అవుట్ అయ్యారు, గది', evClean:'సిద్ధం చేయబడింది',
+      evPaid:'బ్యాలెన్స్ చెల్లించారు, గది', evExtend:'బస పొడిగించారు, గది',
+      forNights:'', nightsWord:'రాత్రులు', resetDone:'డెమో డేటా మళ్ళీ తయారైంది'
     }
   };
 
@@ -737,23 +765,185 @@
   }
 
   /* =========================================================
+     SIMULATOR
+     Drives the dashboard with plausible front-desk events so
+     someone can watch how it behaves instead of reading a
+     static board. Demo only; it touches the same data the real
+     app does, so Reset demo puts it back.
+     ========================================================= */
+  var sim = { on: false, timer: null, speed: 1, events: [] };
+  var SPEEDS = [1, 2, 4];
+
+  function feedIcon(kind) {
+    return { in: '\u2193', out: '\u2191', clean: '\u2726', money: '\u20B9' }[kind] || '\u2022';
+  }
+
+  function logEvent(kind, html) {
+    sim.events.unshift({ kind: kind, html: html, at: new Date() });
+    sim.events = sim.events.slice(0, 25);
+    renderFeed();
+  }
+
+  function renderFeed() {
+    var el = $('#feed');
+    if (!el) return;
+    if (!sim.events.length) {
+      el.innerHTML = '<span class="empty-feed">' + esc(t('feedEmpty')) + '</span>';
+      return;
+    }
+    el.innerHTML = sim.events.map(function (e) {
+      var time = e.at.toLocaleTimeString(lang === 'te' ? 'te-IN' : 'en-IN',
+        { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      return '<li><span class="fi fi-' + esc(e.kind) + '" aria-hidden="true">' + feedIcon(e.kind) + '</span>' +
+             '<span>' + e.html + '<span class="ft">' + esc(time) + '</span></span></li>';
+    }).join('');
+  }
+
+  function flashRoom(no) {
+    var card = $('.rm[data-room="' + no + '"]');
+    if (!card) return;
+    card.classList.add('just-changed');
+    setTimeout(function () { card.classList.remove('just-changed'); }, 1200);
+  }
+
+  /* One plausible action, chosen from whatever the board allows. */
+  function simStep() {
+    var vacant = DB.rooms.filter(function (r) { return roomStatus(r) === 'vac'; });
+    var cleaning = DB.rooms.filter(function (r) { return r.state === 'cleaning'; });
+    var owing = DB.stays.filter(function (s) { return !s.outAt && balance(s) > 0; });
+
+    /* Prefer guests whose stay is actually up, but allow any in-house
+       guest to leave. Otherwise, with a freshly seeded board where
+       nothing is due today, the demo never shows a departure and the
+       room cycle (occupied -> cleaning -> vacant) is never visible. */
+    var inHouse = DB.stays.filter(function (s) { return !s.outAt; });
+    var due = inHouse.filter(function (s) { return dueDate(s) <= today(); });
+    var leaving = due.length ? due : inHouse;
+
+    /* Weighted so the board keeps moving through the whole cycle rather
+       than settling into a run of one event type. */
+    var choices = [];
+    if (vacant.length)   choices.push('in', 'in', 'in');
+    if (leaving.length)  choices.push('out', 'out');
+    if (cleaning.length) choices.push('clean', 'clean');
+    if (owing.length)    choices.push('pay');
+    if (!choices.length) { stopSim(); return; }
+
+    var pick = choices[Math.floor(Math.random() * choices.length)];
+
+    if (pick === 'in') {
+      var rm = vacant[Math.floor(Math.random() * vacant.length)];
+      var g = makeDemoGuest();
+      DB.guests.push(g);
+      var nights = 1 + Math.floor(Math.random() * 4);
+      var rate = roomType(rm.type).price;
+      DB.stays.push({
+        id: nextId('s'), room: rm.no, guestId: g.id, inAt: today(), nights: nights,
+        rate: rate, advance: Math.random() < 0.5 ? rate : 0,
+        payMode: ['Cash', 'UPI', 'UPI', 'Card'][Math.floor(Math.random() * 4)],
+        source: ['Walk-in', 'Phone call', 'Google Maps', 'WhatsApp', 'Auto / taxi driver',
+                 'Hospital referral'][Math.floor(Math.random() * 6)],
+        segment: g.segment, pax: 1 + Math.floor(Math.random() * 2), note: '', outAt: null
+      });
+      rm.state = 'vacant';
+      logEvent('in', '<b>' + esc(g.name) + '</b> ' + esc(t('evIn')) + ' <b>' + esc(rm.no) + '</b> ' +
+        esc(t('forNights')) + ' ' + nights + ' ' + esc(t('nightsWord')));
+      afterSimStep(rm.no);
+
+    } else if (pick === 'out') {
+      var st = leaving[Math.floor(Math.random() * leaving.length)];
+      var gg = guestOf(st);
+      st.outAt = new Date().toISOString();
+      st.advance = stayTotal(st);
+      var room = DB.rooms.filter(function (r) { return r.no === st.room; })[0];
+      if (room) room.state = 'cleaning';
+      logEvent('out', '<b>' + esc(gg.name) + '</b> ' + esc(t('evOut')) + ' <b>' + esc(st.room) +
+        '</b> \u00B7 ' + esc(inr(stayTotal(st))));
+      afterSimStep(st.room);
+
+    } else if (pick === 'clean') {
+      var cr = cleaning[Math.floor(Math.random() * cleaning.length)];
+      cr.state = 'vacant';
+      logEvent('clean', (lang === 'te' ? '\u0C17\u0C26\u0C3F ' : 'Room ') + '<b>' + esc(cr.no) + '</b> ' + esc(t('evClean')));
+      afterSimStep(cr.no);
+
+    } else {
+      var ps = owing[Math.floor(Math.random() * owing.length)];
+      var due = balance(ps);
+      ps.advance = stayTotal(ps);
+      logEvent('money', '<b>' + esc(guestOf(ps).name) + '</b> ' + esc(t('evPaid')) +
+        ' <b>' + esc(ps.room) + '</b> \u00B7 ' + esc(inr(due)));
+      afterSimStep(ps.room);
+    }
+  }
+
+  function afterSimStep(roomNo) {
+    save();
+    refresh();
+    renderFeed();
+    if (roomNo) flashRoom(roomNo);
+  }
+
+  function makeDemoGuest() {
+    var pool = DEMO_NAMES[Math.floor(Math.random() * DEMO_NAMES.length)];
+    var seg = ['medical', 'pilgrim', 'transit', 'corporate', 'govt', 'exam', 'family'][Math.floor(Math.random() * 7)];
+    return {
+      id: nextId('g'),
+      name: pool.first[Math.floor(Math.random() * pool.first.length)] + ' ' +
+            pool.last[Math.floor(Math.random() * pool.last.length)],
+      phone: '9' + String(Math.floor(100000000 + Math.random() * 899999999)),
+      idType: ['Aadhaar', 'Voter ID', 'Driving Licence'][Math.floor(Math.random() * 3)],
+      idNo: 'XXXX' + Math.floor(1000 + Math.random() * 8999),
+      address: DEMO_TOWNS[Math.floor(Math.random() * DEMO_TOWNS.length)],
+      segment: seg
+    };
+  }
+
+  function startSim() {
+    if (sim.on) return;
+    sim.on = true;
+    $('#simBtn').classList.add('is-on');
+    $('#simBtn').querySelector('.sim-ic').innerHTML = '&#10074;&#10074;';
+    $('#simLabel').textContent = t('simStop');
+    $('#liveDot').classList.add('on');
+    sim.timer = setInterval(simStep, Math.round(2600 / sim.speed));
+    simStep();
+  }
+  function stopSim() {
+    sim.on = false;
+    clearInterval(sim.timer);
+    sim.timer = null;
+    var btn = $('#simBtn');
+    if (!btn) return;
+    btn.classList.remove('is-on');
+    btn.querySelector('.sim-ic').innerHTML = '&#9654;';
+    $('#simLabel').textContent = t('simStart');
+    $('#liveDot').classList.remove('on');
+  }
+  function toggleSim() { sim.on ? stopSim() : startSim(); }
+  function cycleSpeed() {
+    sim.speed = SPEEDS[(SPEEDS.indexOf(sim.speed) + 1) % SPEEDS.length];
+    $('#simSpeed').textContent = sim.speed + '\u00D7';
+    if (sim.on) { clearInterval(sim.timer); sim.timer = setInterval(simStep, Math.round(2600 / sim.speed)); }
+  }
+  function resetDemo() {
+    stopSim();
+    sim.events = [];
+    DB = { rooms: [], stays: [], guests: [], seq: 1 };
+    DB.rooms = buildRooms();
+    seed();
+    save();
+    refresh();
+    renderFeed();
+    toast(t('resetDone'));
+  }
+
+  /* =========================================================
      SEED — sample history so the reports are not empty
      ========================================================= */
   function seed() {
-    /* Names are drawn as matched pairs rather than mixing two random
-       pools, which otherwise produces combinations no real guest has. */
-    var namePools = [
-      { first: ['Ravi','Suresh','Naveen','Mahesh','Kiran','Rajesh','Bhaskar','Venkat','Srinivas','Prasad'],
-        last:  ['Kumar','Reddy','Naidu','Rao','Chowdary','Yadav','Babu'] },
-      { first: ['Lakshmi','Anitha','Sridevi','Padma','Sunitha','Bhavani','Swapna','Vijaya'],
-        last:  ['Reddy','Devi','Naidu','Rao','Kumari','Chowdary'] },
-      { first: ['Imran','Arif','Rafi','Khaleel','Mastan','Nazeer'],
-        last:  ['Shaik','Khan','Basha','Ahmed'] },
-      { first: ['Fathima','Yasmin','Nasreen','Shabana','Ayesha'],
-        last:  ['Begum','Shaik','Khatoon'] }
-    ];
-    var towns = ['Proddatur','Pulivendula','Rajampet','Jammalamadugu','Mydukur','Badvel','Kurnool',
-                 'Nandyal','Tirupati','Hyderabad','Bengaluru','Chennai','Anantapur','Nellore'];
+    var namePools = DEMO_NAMES;
+    var towns = DEMO_TOWNS;
     var idTypes = ['Aadhaar','Voter ID','Driving Licence','PAN'];
     var segWeights = ['medical','medical','medical','pilgrim','pilgrim','pilgrim','transit','transit',
                       'corporate','corporate','govt','exam','family','wedding'];
@@ -870,7 +1060,9 @@
       lang = lang === 'en' ? 'te' : 'en';
       try { localStorage.setItem('lodge.lang', lang); } catch (_) {}
       applyI18n();
+      $('#simLabel').textContent = sim.on ? t('simStop') : t('simStart');
       refresh();
+      renderFeed();
     });
 
     /* overlays: close buttons, backdrop click and Escape */
@@ -902,6 +1094,16 @@
     $('#gSearch').addEventListener('input', renderGuests);
     $('#gSeg').addEventListener('change', renderGuests);
     $('#repDays').addEventListener('change', renderReports);
+
+    /* simulator controls */
+    $('#simBtn').addEventListener('click', toggleSim);
+    $('#simSpeed').addEventListener('click', cycleSpeed);
+    $('#resetBtn').addEventListener('click', resetDemo);
+    renderFeed();
+    // never leave a timer running behind a hidden tab
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && sim.on) stopSim();
+    });
 
     /* exports & backup */
     $('#regCsv').addEventListener('click', exportRegister);
