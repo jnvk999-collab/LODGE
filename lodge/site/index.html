@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Krishna Grand — Lodge in Chinna Chauku, Kadapa</title>
+<meta name="description" content="Lodge in Chinna Chauku, Kadapa. 16 AC rooms at a flat ₹1,199 a night. 24-hour hot water, full 24-hour checkout, free coffee, free parking. Call or WhatsApp to book direct.">
+<meta name="theme-color" content="#0b1530">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Krishna Grand — Lodge in Kadapa">
+<meta property="og:description" content="Clean AC & non-AC rooms from ₹700. Near railway station, dargah and RIMS. 24-hour checkout.">
+<meta property="og:image" content="img/hero.svg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127976;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip" href="#rooms">Skip to rooms and tariff</a>
+
+<!-- ============ HEADER ============ -->
+<header class="hdr" id="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true">SL</span>
+      <span class="brand-txt">
+        <strong data-bind="name"></strong>
+        <small data-bind="cityLine"></small>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#rooms">Rooms</a>
+      <a href="#amenities">Amenities</a>
+      <a href="#location">Location</a>
+      <a href="#offers">Offers</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="hdr-act">
+      <button class="lang" id="langBtn" type="button" aria-label="Switch language">తెలుగు</button>
+      <a class="btn btn-call" data-bind-href="tel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.2.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1l-2.3 2.2z"/></svg><span>Call</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="hero-bg"><img src="img/hero.svg" alt="" width="800" height="600"></div>
+  <div class="wrap hero-in">
+    <p class="eyebrow" data-bind="heroEyebrow"></p>
+    <h1 data-bind-html="heroTitle"></h1>
+    <p class="hero-sub" data-bind="tagline"></p>
+
+    <ul class="hero-pills" id="heroPills"></ul>
+
+    <div class="hero-cta">
+      <a class="btn btn-wa btn-lg" data-bind-href="waBook">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.8 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6a12 12 0 0 1-4.6-4.1c-.3-.5-.8-1.4-.8-2.6 0-1.2.6-1.8.9-2.1.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2 0 .4 0 .5l-.4.5c-.1.2-.3.3-.1.6.2.3.7 1.2 1.5 1.9 1 .9 1.8 1.2 2.1 1.3.2.1.4.1.6-.1l.7-.9c.2-.2.3-.2.6-.1l2 .9c.2.1.4.2.4.3.1.1.1.5-.1 1z"/></svg>
+        <span data-bind="ctaWhatsApp"></span>
+      </a>
+      <a class="btn btn-ghost btn-lg" data-bind-href="tel"><span data-bind="ctaCall"></span></a>
+    </div>
+
+    <p class="hero-note" data-bind="directNote"></p>
+  </div>
+</section>
+
+<!-- ============ TRUST STRIP ============ -->
+<section class="trust" aria-label="At a glance">
+  <div class="wrap trust-in" id="trustIn"></div>
+</section>
+
+<!-- ============ ROOMS & TARIFF ============ -->
+<section class="sec" id="rooms">
+  <div class="wrap">
+    <header class="sec-hd">
+      <h2 data-bind="h2Rooms"></h2>
+      <p data-bind="pRooms"></p>
+    </header>
+    <div class="rooms" id="roomsGrid"></div>
+
+    <!-- long stay -->
+    <div class="longstay" id="longstay">
+      <div class="ls-hd">
+        <h3 data-bind="h3LongStay"></h3>
+        <p data-bind="pLongStay"></p>
+      </div>
+      <div class="ls-grid" id="lsGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AMENITIES ============ -->
+<section class="sec sec-alt" id="amenities">
+  <div class="wrap">
+    <header class="sec-hd">
+      <h2 data-bind="h2Amenities"></h2>
+      <p data-bind="pAmenities"></p>
+    </header>
+    <ul class="amen" id="amenGrid"></ul>
+  </div>
+</section>
+
+<!-- ============ LOCATION / DISTANCES ============ -->
+<section class="sec" id="location">
+  <div class="wrap">
+    <header class="sec-hd">
+      <h2 data-bind="h2Location"></h2>
+      <p data-bind="pLocation"></p>
+    </header>
+    <div class="loc">
+      <div class="loc-list">
+        <table class="dist">
+          <thead><tr><th data-bind="thPlace"></th><th data-bind="thDist"></th><th data-bind="thTime"></th></tr></thead>
+          <tbody id="distBody"></tbody>
+        </table>
+        <a class="btn btn-ghost" data-bind-href="maps" target="_blank" rel="noopener">
+          <span data-bind="ctaDirections"></span>
+        </a>
+      </div>
+      <div class="loc-map">
+        <iframe id="mapFrame" title="Map showing the lodge location" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        <address id="addrBlock"></address>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OFFERS ============ -->
+<section class="sec sec-alt" id="offers">
+  <div class="wrap">
+    <header class="sec-hd">
+      <h2 data-bind="h2Offers"></h2>
+      <p data-bind="pOffers"></p>
+    </header>
+    <div class="offers" id="offersGrid"></div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section class="sec" id="gallery">
+  <div class="wrap">
+    <header class="sec-hd">
+      <h2 data-bind="h2Gallery"></h2>
+      <p data-bind="pGallery"></p>
+    </header>
+    <div class="gal" id="galGrid"></div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS ============ -->
+<section class="sec sec-alt" id="reviews">
+  <div class="wrap">
+    <header class="sec-hd">
+      <h2 data-bind="h2Reviews"></h2>
+      <p data-bind="pReviews"></p>
+    </header>
+    <div class="revs" id="revGrid"></div>
+    <div class="rev-cta">
+      <p data-bind="reviewAsk"></p>
+      <a class="btn btn-ghost" data-bind-href="review" target="_blank" rel="noopener"><span data-bind="ctaReview"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOOKING ============ -->
+<section class="sec" id="contact">
+  <div class="wrap">
+    <header class="sec-hd">
+      <h2 data-bind="h2Book"></h2>
+      <p data-bind="pBook"></p>
+    </header>
+
+    <div class="book">
+      <form class="bk-form" id="bookForm" novalidate>
+        <div class="fld">
+          <label for="bkName" data-bind="lblName"></label>
+          <input id="bkName" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="fld">
+          <label for="bkPhone" data-bind="lblPhone"></label>
+          <input id="bkPhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" required>
+        </div>
+        <div class="fld-row">
+          <div class="fld">
+            <label for="bkIn" data-bind="lblIn"></label>
+            <input id="bkIn" name="checkin" type="date" required>
+          </div>
+          <div class="fld">
+            <label for="bkOut" data-bind="lblOut"></label>
+            <input id="bkOut" name="checkout" type="date">
+          </div>
+        </div>
+        <div class="fld-row">
+          <div class="fld">
+            <label for="bkRoom" data-bind="lblRoom"></label>
+            <select id="bkRoom" name="room"></select>
+          </div>
+          <div class="fld">
+            <label for="bkQty" data-bind="lblQty"></label>
+            <select id="bkQty" name="qty"></select>
+          </div>
+        </div>
+        <div class="fld">
+          <label for="bkNote" data-bind="lblNote"></label>
+          <textarea id="bkNote" name="note" rows="3"></textarea>
+        </div>
+
+        <output class="est" id="est" aria-live="polite"></output>
+
+        <button class="btn btn-wa btn-lg btn-block" type="submit">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.8 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6a12 12 0 0 1-4.6-4.1c-.3-.5-.8-1.4-.8-2.6 0-1.2.6-1.8.9-2.1.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2 0 .4 0 .5l-.4.5c-.1.2-.3.3-.1.6.2.3.7 1.2 1.5 1.9 1 .9 1.8 1.2 2.1 1.3.2.1.4.1.6-.1l.7-.9c.2-.2.3-.2.6-.1l2 .9c.2.1.4.2.4.3.1.1.1.5-.1 1z"/></svg>
+          <span data-bind="ctaSend"></span>
+        </button>
+        <p class="bk-hint" data-bind="bkHint"></p>
+      </form>
+
+      <aside class="bk-side">
+        <div class="card-contact">
+          <h3 data-bind="h3Reach"></h3>
+          <a class="row-link" data-bind-href="tel">
+            <span class="ri">&#128222;</span>
+            <span><small data-bind="lblCall24"></small><strong data-bind="phone1"></strong></span>
+          </a>
+          <a class="row-link" data-bind-href="tel2">
+            <span class="ri">&#128222;</span>
+            <span><small data-bind="lblAlt"></small><strong data-bind="phone2"></strong></span>
+          </a>
+          <a class="row-link" data-bind-href="waPlain">
+            <span class="ri">&#128172;</span>
+            <span><small>WhatsApp</small><strong data-bind="phone1"></strong></span>
+          </a>
+          <a class="row-link" data-bind-href="mail">
+            <span class="ri">&#9993;</span>
+            <span><small data-bind="lblEmail"></small><strong data-bind="email"></strong></span>
+          </a>
+        </div>
+
+        <div class="card-upi">
+          <h3 data-bind="h3Upi"></h3>
+          <p data-bind="pUpi"></p>
+          <div class="upi-id" id="upiId"></div>
+        </div>
+
+        <div class="card-policy">
+          <h3 data-bind="h3Policy"></h3>
+          <ul id="policyList"></ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="ftr">
+  <div class="wrap ftr-in">
+    <div class="ftr-brand">
+      <strong data-bind="name"></strong>
+      <address id="ftrAddr"></address>
+      <p class="ftr-reg" data-bind="ftrReg"></p>
+    </div>
+    <nav class="ftr-nav" aria-label="Footer">
+      <a href="#rooms">Rooms &amp; tariff</a>
+      <a href="#amenities">Amenities</a>
+      <a href="#location">Location</a>
+      <a href="#offers">Offers</a>
+      <a href="#contact">Book a room</a>
+    </nav>
+    <p class="ftr-demo" data-bind="demoNote"></p>
+  </div>
+</footer>
+
+<!-- ============ STICKY MOBILE BAR ============ -->
+<div class="sticky" role="group" aria-label="Quick booking">
+  <a class="sb sb-call" data-bind-href="tel"><span>&#128222;</span><b data-bind="ctaCall"></b></a>
+  <a class="sb sb-wa" data-bind-href="waBook"><span>&#128172;</span><b>WhatsApp</b></a>
+</div>
+
+<script src="config.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

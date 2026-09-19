@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reception Desk — Krishna Grand</title>
+<meta name="description" content="Front desk system: room board, check-in and check-out, guest register, daily occupancy and revenue.">
+<meta name="theme-color" content="#0b1530">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128682;</text></svg>">
+<link rel="stylesheet" href="css/pms.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="top-brand">
+      <span class="dot" aria-hidden="true"></span>
+      <div>
+        <strong id="topName">Reception Desk</strong>
+        <small id="topDate"></small>
+      </div>
+    </div>
+    <div class="top-act">
+      <button class="mini" id="langBtn" type="button">తెలుగు</button>
+      <button class="mini" id="backupBtn" type="button" data-i="backup">Backup</button>
+      <button class="mini" id="restoreBtn" type="button" data-i="restore">Restore</button>
+      <input type="file" id="restoreFile" accept="application/json" hidden>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab is-on" data-tab="board"    role="tab" data-i="tabBoard">Room board</button>
+    <button class="tab"       data-tab="today"    role="tab" data-i="tabToday">Today</button>
+    <button class="tab"       data-tab="register" role="tab" data-i="tabRegister">Guest register</button>
+    <button class="tab"       data-tab="guests"   role="tab" data-i="tabGuests">Guest database</button>
+    <button class="tab"       data-tab="reports"  role="tab" data-i="tabReports">Reports</button>
+  </nav>
+  <div class="demobar">
+    <span class="demo-tag" data-i="demoTag">DEMO</span>
+    <span class="demo-txt" data-i="demoTxt">Sample lodge data. Press play to watch a day at the desk run by itself.</span>
+    <div class="demo-act">
+      <button class="sim" id="simBtn" type="button"><span class="sim-ic" aria-hidden="true">&#9654;</span><span id="simLabel" data-i="simStart">Run simulation</span></button>
+      <button class="sim sim-alt" id="simSpeed" type="button">1&times;</button>
+      <button class="sim sim-alt" id="resetBtn" type="button" data-i="resetDemo">Reset demo</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= ROOM BOARD ================= -->
+<section class="panel is-on" id="p-board" role="tabpanel">
+  <div class="bar">
+    <div class="legend">
+      <span><i class="sw sw-vac"></i><b data-i="lgVacant">Vacant</b> <em id="cVac">0</em></span>
+      <span><i class="sw sw-occ"></i><b data-i="lgOccupied">Occupied</b> <em id="cOcc">0</em></span>
+      <span><i class="sw sw-due"></i><b data-i="lgDue">Due out</b> <em id="cDue">0</em></span>
+      <span><i class="sw sw-cln"></i><b data-i="lgClean">Cleaning</b> <em id="cCln">0</em></span>
+      <span><i class="sw sw-blk"></i><b data-i="lgBlocked">Blocked</b> <em id="cBlk">0</em></span>
+    </div>
+    <div class="occ-pill"><b id="occPct">0%</b> <span data-i="occupied">occupied</span></div>
+  </div>
+  <div class="board-split">
+    <div class="floors" id="floors"></div>
+    <aside class="feed-box">
+      <h2><span class="live-dot" id="liveDot" aria-hidden="true"></span><span data-i="hFeed">Live activity</span></h2>
+      <ol class="feed" id="feed"></ol>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= TODAY ================= -->
+<section class="panel" id="p-today" role="tabpanel">
+  <div class="kpis" id="kpis"></div>
+  <div class="two">
+    <div class="box">
+      <h2 data-i="hInHouse">In-house guests</h2>
+      <div class="tblwrap"><table class="tbl" id="inhouseTbl"></table></div>
+    </div>
+    <div class="box">
+      <h2 data-i="hDueOut">Checking out today</h2>
+      <div class="tblwrap"><table class="tbl" id="dueoutTbl"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REGISTER ================= -->
+<section class="panel" id="p-register" role="tabpanel">
+  <div class="bar">
+    <div class="filters">
+      <label><span data-i="from">From</span><input type="date" id="regFrom"></label>
+      <label><span data-i="to">To</span><input type="date" id="regTo"></label>
+      <input type="search" id="regSearch" placeholder="Name, phone, room, ID…">
+    </div>
+    <button class="mini mini-go" id="regCsv" type="button" data-i="exportCsv">Export CSV</button>
+  </div>
+  <p class="hint" data-i="regHint">This is your guest register. Keep it accurate — you are required to record every guest's name, address and photo ID. Export a copy whenever the police or an inspection asks for it.</p>
+  <div class="tblwrap"><table class="tbl" id="regTbl"></table></div>
+</section>
+
+<!-- ================= GUEST DATABASE ================= -->
+<section class="panel" id="p-guests" role="tabpanel">
+  <div class="bar">
+    <div class="filters">
+      <input type="search" id="gSearch" placeholder="Search name or phone…">
+      <select id="gSeg"></select>
+    </div>
+    <button class="mini mini-go" id="gCsv" type="button" data-i="exportCsv">Export CSV</button>
+  </div>
+  <p class="hint" data-i="gHint">Every guest who stays becomes a contact. Before Urs, exam weekends and festival dates, message the relevant segment on WhatsApp — repeat guests are the cheapest bookings you will ever get.</p>
+  <div class="tblwrap"><table class="tbl" id="gTbl"></table></div>
+</section>
+
+<!-- ================= REPORTS ================= -->
+<section class="panel" id="p-reports" role="tabpanel">
+  <div class="bar">
+    <div class="filters">
+      <label><span data-i="period">Period</span>
+        <select id="repDays">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div class="kpis" id="repKpis"></div>
+  <div class="box">
+    <h2 data-i="hDaily">Daily occupancy and revenue</h2>
+    <div class="chart" id="chart"></div>
+  </div>
+  <div class="two">
+    <div class="box">
+      <h2 data-i="hSeg">Where your business comes from</h2>
+      <div class="tblwrap"><table class="tbl" id="segTbl"></table></div>
+    </div>
+    <div class="box">
+      <h2 data-i="hRoomPerf">Revenue by room type</h2>
+      <div class="tblwrap"><table class="tbl" id="typeTbl"></table></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= CHECK-IN DIALOG ================= -->
+<div class="dlg-wrap" id="ciWrap" hidden>
+ <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="ciTitle">
+  <form id="ciForm">
+    <header class="dlg-hd">
+      <h2 id="ciTitle"><span data-i="checkInTo">Check in to room</span> <b id="ciRoom"></b></h2>
+      <button class="x" type="button" data-close="ciWrap" aria-label="Close">&times;</button>
+    </header>
+    <div class="dlg-bd">
+      <div class="f2">
+        <label class="f"><span data-i="fName">Guest name</span><input name="name" required autocomplete="off"></label>
+        <label class="f"><span data-i="fPhone">Mobile</span><input name="phone" inputmode="numeric" required autocomplete="off"></label>
+      </div>
+      <div class="f2">
+        <label class="f"><span data-i="fIdType">ID type</span>
+          <select name="idType">
+            <option>Aadhaar</option><option>Voter ID</option><option>Driving Licence</option>
+            <option>PAN</option><option>Passport</option><option>Other</option>
+          </select>
+        </label>
+        <label class="f"><span data-i="fIdNo">ID number</span><input name="idNo" required autocomplete="off"></label>
+      </div>
+      <label class="f"><span data-i="fAddr">Address (town / district)</span><input name="address" autocomplete="off"></label>
+      <div class="f2">
+        <label class="f"><span data-i="fSeg">Why are they here?</span><select name="segment" id="ciSeg"></select></label>
+        <label class="f"><span data-i="fPax">Number of guests</span><input name="pax" type="number" min="1" max="8" value="1"></label>
+      </div>
+      <div class="f2">
+        <label class="f"><span data-i="fNights">Nights</span><input name="nights" type="number" min="1" max="120" value="1" id="ciNights"></label>
+        <label class="f"><span data-i="fRate">Rate per night (₹)</span><input name="rate" type="number" min="0" step="1" id="ciRate"></label>
+      </div>
+      <div class="f2">
+        <label class="f"><span data-i="fAdvance">Advance paid (₹)</span><input name="advance" type="number" min="0" step="1" value="0"></label>
+        <label class="f"><span data-i="fPay">Payment mode</span>
+          <select name="payMode"><option>Cash</option><option>UPI</option><option>Card</option><option>OTA / prepaid</option></select>
+        </label>
+      </div>
+      <label class="f"><span data-i="fSource">Booking came from</span><select name="source" id="ciSource"></select></label>
+      <label class="f"><span data-i="fNote">Note</span><input name="note" autocomplete="off"></label>
+      <output class="calc" id="ciCalc"></output>
+    </div>
+    <footer class="dlg-ft">
+      <button class="mini" type="button" data-close="ciWrap" data-i="cancel">Cancel</button>
+      <button class="mini mini-go" type="button" id="ciConfirm" data-i="doCheckIn">Check in</button>
+    </footer>
+  </form>
+ </div>
+</div>
+
+<!-- ================= ROOM ACTION DIALOG ================= -->
+<div class="dlg-wrap" id="roomWrap" hidden>
+ <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="rdTitle">
+  <div id="roomForm">
+    <header class="dlg-hd">
+      <h2 id="rdTitle"><span data-i="room">Room</span> <b id="rdRoom"></b></h2>
+      <button class="x" type="button" data-close="roomWrap" aria-label="Close">&times;</button>
+    </header>
+    <div class="dlg-bd" id="rdBody"></div>
+    <footer class="dlg-ft" id="rdFoot"></footer>
+  </div>
+ </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../site/config.js"></script>
+<script src="js/pms.js"></script>
+</body>
+</html>
