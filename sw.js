@@ -5,7 +5,7 @@
    upload a new index.html without changing it, iOS will keep serving
    the old cached copy and it will look like nothing changed.
    ------------------------------------------------------------------ */
-const CACHE_VERSION = 'oicl-calc-v38';
+const CACHE_VERSION = 'oicl-calc-v39';
 
 /* Relative paths so this works under https://<user>.github.io/<repo>/
    as well as at a domain root. */
@@ -40,6 +40,13 @@ self.addEventListener('fetch', event => {
      else cross-origin goes straight to the network untouched. */
   if (req.method !== 'GET') return;
   if (new URL(req.url).origin !== self.location.origin) return;
+
+  /* The lodge demo is a separate app that happens to share this origin, so
+     this worker's scope covers it. Leave it entirely to the network.
+     Without this, its CSS and JS were cached on first visit and then served
+     from cache forever, so fixes deployed to it never reached a phone that
+     had already opened it once. */
+  if (new URL(req.url).pathname.includes('/lodge/')) return;
 
   /* Page loads: network first, so opening the app while online always
      picks up a fresh upload. Falls back to cache when offline. */
