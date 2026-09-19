@@ -907,9 +907,17 @@
     }
   }
 
+  /* Let the browser paint the header, tabs and legend before doing the
+     seeding and five renders. Otherwise a slow device shows nothing at
+     all until all of that finishes. */
+  function start() {
+    if (window.requestAnimationFrame) requestAnimationFrame(function () { setTimeout(boot, 0); });
+    else setTimeout(boot, 0);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', start);
   } else {
-    boot();
+    start();
   }
 })();
