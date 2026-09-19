@@ -80,6 +80,9 @@ body{
 }
 body.te{font-family:var(--ft)}
 img,svg,iframe{max-width:100%;display:block}
+/* the display rule above would otherwise beat the browser's own
+   [hidden]{display:none}, leaving hidden elements visible */
+[hidden]{display:none!important}
 h1,h2{
   /* Cormorant carries the "grand hotel" register that a geometric
      sans cannot. Used large and only for headings, never body. */
@@ -156,8 +159,6 @@ table{border-collapse:collapse;width:100%}
   background:linear-gradient(90deg,var(--gold-600),var(--gold-300) 35%,var(--gold-400) 65%,var(--gold-600))}
 .hero-bg{position:absolute;inset:0;z-index:-2}
 .hero-bg img{width:100%;height:100%;object-fit:cover}
-/* no hero photograph yet: the gradient carries the header on its own */
-.hero-bg img[hidden]{display:none}
 .hero::after{
   content:'';position:absolute;inset:0;z-index:-1;
   background:linear-gradient(165deg,rgba(7,13,32,.93) 0%,rgba(19,33,72,.90) 48%,rgba(29,47,104,.88) 100%);

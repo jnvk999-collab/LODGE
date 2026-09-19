@@ -166,10 +166,11 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     const roomNo = (await vacantRoom.locator('.rm-no').innerText()).trim();
     await vacantRoom.click();
     await page.waitForTimeout(250);
-    log(await page.locator('#roomDlg').isVisible(), 'clicking a vacant room opens the room dialog');
+    log(await page.locator('#roomWrap').isVisible(), 'clicking a vacant room opens the room overlay');
+    log((await page.locator('dialog').count()) === 0, 'no <dialog> elements (old Android WebViews mishandle them)');
     await page.locator('#rdFoot [data-act="in"]').click();
     await page.waitForTimeout(250);
-    log(await page.locator('#ciDlg').isVisible(), 'check-in dialog opens for room ' + roomNo);
+    log(await page.locator('#ciWrap').isVisible(), 'check-in overlay opens for room ' + roomNo);
 
     await page.fill('#ciForm input[name="name"]', 'Test Guest Kadapa');
     await page.fill('#ciForm input[name="phone"]', '9876543210');
@@ -183,8 +184,9 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     const calc = await page.locator('#ciCalc').innerText();
     log(/5,995/.test(calc) && /3,995/.test(calc), 'live calc: 5 x 1199 = 5,995, balance 3,995 -> "' + calc.replace(/\n/g, ' ') + '"');
 
-    await page.locator('#ciForm button[value="ok"]').click();
+    await page.locator('#ciConfirm').click();
     await page.waitForTimeout(400);
+    log(await page.locator('#ciWrap').isHidden(), 'check-in overlay closes after confirming');
     const vacAfter = Number(await page.locator('#cVac').innerText());
     log(vacAfter === vacBefore - 1, 'vacant count dropped ' + vacBefore + ' -> ' + vacAfter);
     const nowOcc = await page.locator('.rm[data-room="' + roomNo + '"]').getAttribute('class');

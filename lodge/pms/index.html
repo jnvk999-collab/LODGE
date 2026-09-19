@@ -128,11 +128,12 @@
 </main>
 
 <!-- ================= CHECK-IN DIALOG ================= -->
-<dialog class="dlg" id="ciDlg">
-  <form method="dialog" id="ciForm">
+<div class="dlg-wrap" id="ciWrap" hidden>
+ <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="ciTitle">
+  <form id="ciForm">
     <header class="dlg-hd">
-      <h2><span data-i="checkInTo">Check in to room</span> <b id="ciRoom"></b></h2>
-      <button class="x" value="cancel" type="submit" aria-label="Close">&times;</button>
+      <h2 id="ciTitle"><span data-i="checkInTo">Check in to room</span> <b id="ciRoom"></b></h2>
+      <button class="x" type="button" data-close="ciWrap" aria-label="Close">&times;</button>
     </header>
     <div class="dlg-bd">
       <div class="f2">
@@ -168,23 +169,26 @@
       <output class="calc" id="ciCalc"></output>
     </div>
     <footer class="dlg-ft">
-      <button class="mini" value="cancel" type="submit" data-i="cancel">Cancel</button>
-      <button class="mini mini-go" value="ok" type="submit" data-i="doCheckIn">Check in</button>
+      <button class="mini" type="button" data-close="ciWrap" data-i="cancel">Cancel</button>
+      <button class="mini mini-go" type="button" id="ciConfirm" data-i="doCheckIn">Check in</button>
     </footer>
   </form>
-</dialog>
+ </div>
+</div>
 
 <!-- ================= ROOM ACTION DIALOG ================= -->
-<dialog class="dlg" id="roomDlg">
-  <form method="dialog" id="roomForm">
+<div class="dlg-wrap" id="roomWrap" hidden>
+ <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="rdTitle">
+  <div id="roomForm">
     <header class="dlg-hd">
-      <h2><span data-i="room">Room</span> <b id="rdRoom"></b></h2>
-      <button class="x" value="cancel" type="submit" aria-label="Close">&times;</button>
+      <h2 id="rdTitle"><span data-i="room">Room</span> <b id="rdRoom"></b></h2>
+      <button class="x" type="button" data-close="roomWrap" aria-label="Close">&times;</button>
     </header>
     <div class="dlg-bd" id="rdBody"></div>
     <footer class="dlg-ft" id="rdFoot"></footer>
-  </form>
-</dialog>
+  </div>
+ </div>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

@@ -29,6 +29,10 @@
 }
 
 *,*::before,*::after{box-sizing:border-box}
+/* An author `display` rule beats the browser's own [hidden]{display:none},
+   which would leave a closed overlay as an invisible full-screen layer
+   swallowing every tap. This must come before any component sets display. */
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--bg);color:var(--ink);
@@ -178,18 +182,29 @@ main{padding:16px;max-width:1400px;margin-inline:auto}
 }
 .cbar:hover::after{opacity:1}
 
-/* ---------- dialogs ---------- */
-.dlg{
-  border:0;border-radius:16px;padding:0;max-width:620px;width:calc(100% - 28px);
-  background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3);
+/* ---------- overlays ---------- */
+.dlg-wrap{
+  position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+  padding:14px;background:rgba(7,13,32,.68);overflow-y:auto;
+  padding-top:max(14px,env(safe-area-inset-top,0px));
+  padding-bottom:max(14px,env(safe-area-inset-bottom,0px));
 }
-.dlg::backdrop{background:rgba(7,13,32,.68)}
+.dlg{
+  border:0;border-radius:16px;padding:0;max-width:620px;width:100%;margin:auto;
+  background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+/* on a phone the overlay behaves as a full-height sheet */
+@media (max-width:560px){
+  .dlg-wrap{padding:0;align-items:stretch}
+  .dlg{border-radius:0;min-height:100%}
+  .dlg-ft{border-radius:0}
+}
 .dlg-hd{display:flex;align-items:center;gap:12px;padding:17px 20px;border-bottom:1px solid var(--line)}
 .dlg-hd h2{font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:700;margin-right:auto}
 .dlg-hd b{color:var(--brand-700)}
 .x{background:none;border:0;font-size:27px;line-height:1;color:var(--ink-3);cursor:pointer;padding:0 5px}
 .x:hover{color:var(--red)}
-.dlg-bd{padding:20px;display:flex;flex-direction:column;gap:13px;max-height:66vh;overflow-y:auto}
+.dlg-bd{padding:20px;display:flex;flex-direction:column;gap:13px}
 .dlg-ft{display:flex;gap:9px;justify-content:flex-end;padding:15px 20px;border-top:1px solid var(--line);
   background:var(--grey-50);border-radius:0 0 16px 16px;flex-wrap:wrap}
 .dlg-ft .mini{background:var(--card);border-color:var(--line-2);color:var(--ink)}

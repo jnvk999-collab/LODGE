@@ -516,6 +516,22 @@
      ========================================================= */
   var ciRoomNo = null;
 
+  /* Plain overlays rather than <dialog>. showModal() is unreliable on the
+     older Android WebViews a reception desk is likely to be running. */
+  function openOverlay(id) {
+    var w = document.getElementById(id);
+    if (!w) return;
+    w.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeOverlay(id) {
+    var w = document.getElementById(id);
+    if (!w) return;
+    w.hidden = true;
+    document.body.style.overflow = '';
+  }
+  function closeAllOverlays() { closeOverlay('ciWrap'); closeOverlay('roomWrap'); }
+
   function openRoom(no) {
     var rm = DB.rooms.filter(function (r) { return r.no === no; })[0];
     if (!rm) return;
@@ -559,7 +575,7 @@
         '<button class="mini mini-go" type="button" data-act="out">' + esc(t('doCheckOut')) + '</button>';
       wireRoomFoot(rm, s);
     }
-    $('#roomDlg').showModal();
+    openOverlay('roomWrap');
   }
 
   function wireRoomFoot(rm, s) {
@@ -569,7 +585,7 @@
         if (a === 'state') { rm.state = rm.state === 'cleaning' ? 'vacant' : 'cleaning'; save(); }
         if (a === 'block') { rm.state = rm.state === 'blocked' ? 'vacant' : 'blocked'; save(); }
         if (a === 'extend') { s.nights += 1; save(); toast(t('msgSaved')); }
-        $('#roomDlg').close();
+        closeOverlay('roomWrap');
         if (a === 'in') { openCheckIn(rm); return; }
         if (a === 'out') { checkOut(s.id); return; }
         refresh();
@@ -586,8 +602,8 @@
     $('#ciRate').value = ty.price;
     $('#ciNights').value = 1;
     updateCalc();
-    $('#ciDlg').showModal();
-    setTimeout(function () { f.name.focus(); }, 40);
+    openOverlay('ciWrap');
+    setTimeout(function () { try { f.name.focus(); } catch (_) {} }, 40);
   }
 
   function updateCalc() {
@@ -857,13 +873,25 @@
       refresh();
     });
 
-    /* check-in dialog: cancel must not trip HTML validation */
-    $$('#ciForm button[value="cancel"], #roomForm button[value="cancel"]').forEach(function (b) {
-      b.setAttribute('formnovalidate', '');
+    /* overlays: close buttons, backdrop click and Escape */
+    $$('[data-close]').forEach(function (b) {
+      b.addEventListener('click', function () { closeOverlay(b.getAttribute('data-close')); });
     });
-    $('#ciDlg').addEventListener('close', function () {
-      if ($('#ciDlg').returnValue === 'ok') doCheckIn();
+    $$('.dlg-wrap').forEach(function (w) {
+      w.addEventListener('click', function (e) { if (e.target === w) closeOverlay(w.id); });
     });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAllOverlays();
+    });
+
+    /* Check in only once the browser agrees the form is valid, then close. */
+    $('#ciConfirm').addEventListener('click', function () {
+      var f = $('#ciForm');
+      if (f.reportValidity && !f.reportValidity()) return;
+      closeOverlay('ciWrap');
+      doCheckIn();
+    });
+    $('#ciForm').addEventListener('submit', function (e) { e.preventDefault(); });
     ['nights', 'rate', 'advance'].forEach(function (n) {
       $('#ciForm')[n].addEventListener('input', updateCalc);
     });
