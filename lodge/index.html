@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Krishna Grand — demo</title>
+<meta name="description" content="Working demo of the Krishna Grand lodge website and front desk system. Kadapa, Andhra Pradesh.">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127976;</text></svg>">
+<style>
+:root{
+  --blue-700:#1d4ed8; --blue-600:#2563eb; --blue-500:#3b82f6;
+  --blue-100:#dbeafe; --blue-50:#eff6ff;
+  --bg:#f4f7fb; --card:#fff; --ink:#0f172a; --ink-2:#475569; --ink-3:#94a3b8;
+  --line:#e2e8f0; --amber:#b45309; --amber-bg:#fffbeb; --amber-line:#fcd34d;
+  --shadow:0 1px 2px rgba(15,23,42,.05), 0 8px 24px rgba(15,23,42,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1220; --card:#121b2e; --ink:#e8eef9; --ink-2:#a3b0c6; --ink-3:#7c8aa3;
+    --line:#1f2a40; --blue-50:#15233f; --blue-100:#1b2d52;
+    --amber-bg:#2a1c0c; --amber-line:#7c5307; --amber:#fcd34d;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.4);
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin-inline:auto;padding:0 16px}
+header{
+  background:linear-gradient(105deg,var(--blue-700),var(--blue-500));color:#fff;
+  padding-block:38px 34px;padding-top:calc(38px + env(safe-area-inset-top,0px));
+}
+.tag{
+  display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+  font-size:11px;font-weight:800;letter-spacing:.13em;padding:4px 11px;border-radius:5px;margin-bottom:14px;
+}
+h1{margin:0;font-size:clamp(28px,7vw,40px);font-weight:800;letter-spacing:-.025em;text-wrap:balance}
+header p{margin:10px 0 0;color:#dbeafe;font-size:16px;max-width:46ch}
+main{padding-block:28px 44px;padding-bottom:calc(44px + env(safe-area-inset-bottom,0px))}
+.cards{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:660px){ .cards{grid-template-columns:1fr 1fr} }
+.card{
+  display:flex;flex-direction:column;gap:9px;min-width:0;
+  background:var(--card);border:1px solid var(--line);border-top:5px solid var(--blue-600);
+  border-radius:14px;padding:22px;text-decoration:none;color:inherit;box-shadow:var(--shadow);
+  transition:transform .14s ease, box-shadow .14s ease;
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 4px 10px rgba(15,23,42,.1),0 18px 40px rgba(15,23,42,.14)}
+.card .ic{
+  width:44px;height:44px;border-radius:11px;background:var(--blue-50);
+  display:grid;place-items:center;font-size:22px;line-height:1;
+}
+.card h2{margin:4px 0 0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+.card p{margin:0;font-size:14.5px;color:var(--ink-2)}
+.go{margin-top:auto;padding-top:12px;font-weight:800;font-size:14.5px;color:var(--blue-700)}
+.note{
+  margin-top:26px;background:var(--amber-bg);border:1px solid var(--amber-line);
+  border-radius:12px;padding:18px 20px;font-size:14px;color:var(--ink-2);
+}
+.note strong{color:var(--amber);display:block;margin-bottom:6px;font-size:14.5px}
+.note ul{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+footer{border-top:1px solid var(--line);margin-top:30px;padding-top:18px;font-size:13px;color:var(--ink-3)}
+:focus-visible{outline:3px solid var(--blue-600);outline-offset:3px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="tag">DEMO</span>
+    <h1>Krishna Grand</h1>
+    <p>A 16-room AC lodge at Chinna Chauku, Kadapa. Two working demos, both running on sample data.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="cards">
+    <a class="card" href="site/">
+      <span class="ic" aria-hidden="true">&#127976;</span>
+      <h2>Guest website</h2>
+      <p>What a guest sees: rooms, the flat &#8377;1,199 tariff, amenities, distances and WhatsApp booking. English and Telugu.</p>
+      <span class="go">Open the website &rarr;</span>
+    </a>
+    <a class="card" href="pms/">
+      <span class="ic" aria-hidden="true">&#128682;</span>
+      <h2>Front desk &#183; live simulator</h2>
+      <p>What reception uses. Press <b>Run simulation</b> and watch arrivals, departures and housekeeping move the board by themselves.</p>
+      <span class="go">Open the front desk &rarr;</span>
+    </a>
+  </div>
+
+  <div class="note">
+    <strong>This is a demonstration, not the real lodge</strong>
+    <ul>
+      <li>Every guest name, phone number, photograph and review is invented sample data.</li>
+      <li>The lodge is still being built, so no real photographs exist yet.</li>
+      <li>The front desk stores its data in this browser only. Nothing is uploaded anywhere.</li>
+      <li>The real front desk must run on the reception device behind a password, never on a public address like this one.</li>
+    </ul>
+  </div>
+
+  <footer>Kadapa, Andhra Pradesh &#183; demo build</footer>
+</main>
+
+</body>
+</html>
