@@ -886,9 +886,30 @@
     });
   }
 
+  /* If anything in init() throws, the page would otherwise render as a
+     blank white screen with no clue why. Show the error instead. */
+  function boot() {
+    try {
+      init();
+    } catch (e) {
+      var box = document.createElement('div');
+      box.setAttribute('role', 'alert');
+      box.style.cssText = 'margin:24px;padding:20px;border:2px solid #b31b3f;border-radius:12px;' +
+        'background:#fdeef2;color:#141a2b;font:15px/1.6 system-ui,sans-serif;max-width:640px';
+      box.innerHTML = '<strong style="display:block;font-size:17px;margin-bottom:8px">' +
+        'The reception desk could not start</strong>' +
+        '<p style="margin:0 0 10px">Reload the page. If it keeps failing, the browser may be ' +
+        'blocking local storage \u2014 try a normal window rather than a private one.</p>' +
+        '<code style="display:block;padding:10px;background:#fff;border-radius:8px;' +
+        'font-size:13px;word-break:break-word"></code>';
+      box.querySelector('code').textContent = (e && e.message) || String(e);
+      document.body.insertBefore(box, document.body.firstChild);
+    }
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    init();
+    boot();
   }
 })();

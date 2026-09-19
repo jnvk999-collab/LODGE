@@ -15,8 +15,8 @@
       cityLine: C.address.city + ', ' + C.address.state,
       heroEyebrow: 'Lodge in ' + (C.address.locality || C.address.line2) + ' · ' + C.address.city,
       heroTitle: flatRate()
-        ? 'A clean AC room in ' + C.address.city + ', ₹' + inr0(minPrice()) + ' a night'
-        : 'A clean room in ' + C.address.city + ', from ₹' + inr0(minPrice()) + ' a night',
+        ? 'A clean AC room in ' + esc(C.address.city) + ', ' + amt() + ' a night'
+        : 'A clean room in ' + esc(C.address.city) + ', from ' + amt() + ' a night',
       tagline: C.tagline,
       ctaWhatsApp: 'Book on WhatsApp',
       ctaCall: 'Call now',
@@ -66,8 +66,8 @@
       cityLine: 'కడప, ఆంధ్రప్రదేశ్',
       heroEyebrow: 'చిన్న చౌకు, కడప · లాడ్జి',
       heroTitle: flatRate()
-        ? 'కడపలో శుభ్రమైన ఏసీ గది, రాత్రికి ₹' + inr0(minPrice())
-        : 'కడపలో శుభ్రమైన గది, రాత్రికి ₹' + inr0(minPrice()) + ' నుండి',
+        ? 'కడపలో శుభ్రమైన ఏసీ గది, రాత్రికి ' + amt()
+        : 'కడపలో శుభ్రమైన గది, రాత్రికి ' + amt() + ' నుండి',
       tagline: C.taglineTe,
       ctaWhatsApp: 'వాట్సాప్‌లో బుక్ చేయండి',
       ctaCall: 'ఫోన్ చేయండి',
@@ -119,6 +119,8 @@
   function t(k) { return T[lang][k] != null ? T[lang][k] : T.en[k]; }
   function minPrice() { return Math.min.apply(null, C.rooms.map(function (r) { return r.price; })); }
   function inr0(n) { return Number(n).toLocaleString('en-IN'); }
+  // the nightly figure, marked up so the stylesheet can set it in gold
+  function amt() { return '<span class="amt">\u20B9' + inr0(minPrice()) + '</span>'; }
   // one room category, or several that all cost the same
   function flatRate() { return C.rooms.length === 1 || minPrice() === Math.max.apply(null, C.rooms.map(function (r) { return r.price; })); }
   function hasPhotos() { return C.photosReady === true; }
@@ -187,6 +189,11 @@
     $$('[data-bind]').forEach(function (el) {
       var v = vals[el.getAttribute('data-bind')];
       if (v != null) el.textContent = v;
+    });
+    // only for values this file builds as markup; never user input
+    $$('[data-bind-html]').forEach(function (el) {
+      var v = vals[el.getAttribute('data-bind-html')];
+      if (v != null) el.innerHTML = v;
     });
     $$('[data-bind-href]').forEach(function (el) {
       var f = HREFS[el.getAttribute('data-bind-href')];

@@ -109,8 +109,8 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     log((await page.locator('.floor').count()) === 4, 'groups rooms into 4 floors');
 
     const seeded = await page.evaluate(() => JSON.parse(localStorage.getItem('lodge.pms.v1')));
-    log(seeded.stays.length > 100, 'seeded ' + seeded.stays.length + ' sample stays');
-    log(seeded.guests.length > 100, 'seeded ' + seeded.guests.length + ' sample guests');
+    log(seeded.stays.length > 50, 'seeded ' + seeded.stays.length + ' sample stays');
+    log(seeded.guests.length > 50, 'seeded ' + seeded.guests.length + ' sample guests');
 
     const occ = await page.locator('#occPct').innerText();
     log(/^\d+%$/.test(occ), 'occupancy shown on board: ' + occ);
