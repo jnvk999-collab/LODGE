@@ -251,7 +251,9 @@
       var mins = approx + (d.mins >= 60 ? Math.round(d.mins / 60 * 10) / 10 + (lang === 'te' ? ' గం' : ' hr') : d.mins + (lang === 'te' ? ' ని' : ' min'));
       return '<tr><td>' + esc(lang === 'te' && d.placeTe ? d.placeTe : d.place) + '</td><td>' + esc(km) + '</td><td>' + esc(mins) + '</td></tr>';
     }).join('');
-    $('#mapFrame').src = C.mapsEmbed;
+    // the map frame is optional: some embeds of this page omit it
+    var mapFrame = $('#mapFrame');
+    if (mapFrame) mapFrame.src = C.mapsEmbed;
   }
 
   function renderOffers() {

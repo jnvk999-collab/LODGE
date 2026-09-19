@@ -102,7 +102,8 @@ table{border-collapse:collapse;width:100%}
 
 /* ---------- header ---------- */
 .hdr{
-  position:sticky;top:0;z-index:100;
+  /* clears the notch / status bar on phones that report a safe-area inset */
+  position:sticky;top:env(safe-area-inset-top, 0px);z-index:100;
   background:color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter:saturate(1.6) blur(12px);
   border-bottom:1px solid var(--line);
