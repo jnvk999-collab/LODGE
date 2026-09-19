@@ -139,6 +139,8 @@ table{border-collapse:collapse;width:100%}
   background:linear-gradient(90deg,var(--gold-400),var(--gold-600),var(--a3),var(--a4))}
 .hero-bg{position:absolute;inset:0;z-index:-2}
 .hero-bg img{width:100%;height:100%;object-fit:cover}
+/* no hero photograph yet: the gradient carries the header on its own */
+.hero-bg img[hidden]{display:none}
 .hero::after{
   content:'';position:absolute;inset:0;z-index:-1;
   background:linear-gradient(160deg,rgba(16,26,82,.86) 0%,rgba(35,64,168,.82) 45%,rgba(124,58,237,.80) 100%);
@@ -181,6 +183,30 @@ table{border-collapse:collapse;width:100%}
 .rooms{display:grid;grid-template-columns:1fr;gap:18px}
 @media (min-width:640px){ .rooms{grid-template-columns:repeat(2,1fr)} }
 @media (min-width:1000px){ .rooms{grid-template-columns:repeat(3,1fr)} }
+
+/* One room category: the card becomes a wide feature panel instead of a
+   lone card stranded in a three-column grid. */
+.rooms.is-single{grid-template-columns:1fr;max-width:860px}
+@media (min-width:760px){
+  .rooms.is-single .room{flex-direction:row;align-items:stretch}
+  .rooms.is-single .room-img{flex:0 0 42%;aspect-ratio:auto;min-height:320px}
+  .rooms.is-single .room-bd{flex:1;padding:26px}
+  .rooms.is-single .room-nm{font-size:24px}
+  .rooms.is-single .room-pr b{font-size:34px}
+}
+
+/* Shown in place of a photo until real photographs exist. Deliberately
+   quiet: it should read as "not yet", not as a broken image. */
+.photo-pending{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:9px;text-align:center;padding:30px 24px;
+  background:linear-gradient(140deg,var(--brand-50),var(--a4-50));
+  border-bottom:1px solid var(--line);
+}
+.photo-pending .pp-ic{font-size:34px;line-height:1;opacity:.6}
+.photo-pending strong{font-size:15.5px;font-weight:800;color:var(--brand-700)}
+.photo-pending .pp-sub{font-size:13.5px;color:var(--ink-2);max-width:34ch;line-height:1.55}
+@media (min-width:760px){ .rooms.is-single .photo-pending{border-bottom:0;border-right:1px solid var(--line)} }
 
 .room{
   background:var(--bg-card);border:1px solid var(--line);border-radius:var(--r-lg);

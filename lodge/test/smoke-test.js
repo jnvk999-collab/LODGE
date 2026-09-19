@@ -24,17 +24,22 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     await page.goto(BASE + '/site/index.html', { waitUntil: 'networkidle' });
 
     log(errs.length === 0, 'no console errors' + (errs.length ? ': ' + errs.join(' | ') : ''));
-    log((await page.locator('.room').count()) === 5, 'renders 5 room cards');
+    log((await page.locator('.room').count()) === 1, 'renders the single room category');
+    log((await page.locator('.rooms.is-single').count()) === 1, 'single category uses the wide feature layout');
     log((await page.locator('.amen li').count()) === 12, 'renders 12 amenities');
+    const amenTxt = await page.locator('.amen').innerText();
+    log(/coffee/i.test(amenTxt) && !/breakfast/i.test(amenTxt), 'amenities list free coffee, not breakfast');
     log((await page.locator('.dist tbody tr').count()) === 8, 'renders 8 distance rows');
     log((await page.locator('.offer').count()) === 4, 'renders 4 offers');
-    log((await page.locator('.gal figure').count()) === 6, 'renders 6 gallery items');
+    log(await page.locator('#gallery').isHidden(), 'gallery section is hidden while photosReady is false');
+    log((await page.locator('.photo-pending').count()) === 1, 'room shows a photo-pending panel, not a fake placeholder image');
+    log(await page.locator('#longstay').isHidden(), 'long-stay panel is hidden while its list is empty');
     log((await page.locator('.rev').count()) === 3, 'renders 3 reviews');
     log((await page.locator('.tr-item').count()) === 4, 'renders 4 trust stats');
     log((await page.locator('#policyList li').count()) === 7, 'renders 7 policies');
 
     const h1 = await page.locator('h1').innerText();
-    log(h1.includes('700'), 'hero shows lowest price: "' + h1 + '"');
+    log(h1.includes('1,199') && !/from/i.test(h1), 'hero states the flat rate, not a "from" price: "' + h1 + '"');
 
     const waHref = await page.locator('.hero-cta .btn-wa').getAttribute('href');
     log(waHref.startsWith('https://wa.me/919999900000?text='), 'hero WhatsApp link prefilled');
@@ -46,7 +51,8 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     const ld = await page.locator('script[type="application/ld+json"]').innerText();
     const j = JSON.parse(ld);
     log(j['@type'] === 'Hotel', 'JSON-LD is a Hotel');
-    log(j.makesOffer.length === 5, 'JSON-LD lists 5 room offers');
+    log(j.makesOffer.length === 1 && j.makesOffer[0].price === 1199, 'JSON-LD offers one room at 1199');
+    log(j.numberOfRooms === 16, 'JSON-LD reports 16 rooms');
     log(j.geo === undefined, 'JSON-LD omits geo while coordinates are unverified');
     log(j.aggregateRating.ratingValue === 4.5, 'JSON-LD carries rating');
     log(j.address.addressLocality === 'Kadapa', 'JSON-LD address is Kadapa');
@@ -59,11 +65,11 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     // booking form estimate
     await page.locator('#bkIn').fill('2026-10-01');
     await page.locator('#bkOut').fill('2026-10-04');
-    await page.selectOption('#bkRoom', 'ac-double');
+    await page.selectOption('#bkRoom', 'standard');
     await page.selectOption('#bkQty', '2');
     await page.waitForTimeout(150);
     const est = await page.locator('#est').innerText();
-    log(/8,400/.test(est), 'estimate = 1400 x 3 nights x 2 rooms = Rs 8,400 -> "' + est.replace(/\n/g, ' ') + '"');
+    log(/7,194/.test(est), 'estimate = 1199 x 3 nights x 2 rooms = Rs 7,194 -> "' + est.replace(/\n/g, ' ') + '"');
 
     // no horizontal overflow on a phone
     const ovf = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -99,7 +105,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     await page.waitForTimeout(500);
 
     log(errs.length === 0, 'no console errors' + (errs.length ? ': ' + errs.join(' | ') : ''));
-    log((await page.locator('.rm').count()) === 24, 'builds 24 rooms');
+    log((await page.locator('.rm').count()) === 16, 'builds 16 rooms');
     log((await page.locator('.floor').count()) === 4, 'groups rooms into 4 floors');
 
     const seeded = await page.evaluate(() => JSON.parse(localStorage.getItem('lodge.pms.v1')));
@@ -112,7 +118,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     // counts must add up to the room count
     const c = await page.evaluate(() => ['cVac','cOcc','cDue','cCln','cBlk']
       .reduce((a, id) => a + Number(document.getElementById(id).textContent), 0));
-    log(c === 24, 'status counts sum to 24 (got ' + c + ')');
+    log(c === 16, 'status counts sum to 16 (got ' + c + ')');
 
     // Today tab
     await page.locator('[data-tab="today"]').click();
@@ -126,7 +132,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     await page.waitForTimeout(250);
     log((await page.locator('#chart .cbar').count()) === 30, 'chart draws 30 daily bars');
     log((await page.locator('#segTbl tbody tr').count()) > 3, 'source breakdown table populated');
-    log((await page.locator('#typeTbl tbody tr').count()) > 1, 'room-type revenue table populated');
+    log((await page.locator('#typeTbl tbody tr').count()) >= 1, 'room-type revenue table populated');
     const revKpi = await page.locator('#repKpis .kpi').first().innerText();
     log(/₹/.test(revKpi), 'revenue KPI formatted in rupees: ' + revKpi.replace(/\n/g, ' '));
 
@@ -171,11 +177,11 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     await page.fill('#ciForm input[name="address"]', 'Proddatur');
     await page.selectOption('#ciSeg', 'medical');
     await page.fill('#ciNights', '5');
-    await page.fill('#ciRate', '1000');
+    await page.fill('#ciRate', '1199');
     await page.fill('#ciForm input[name="advance"]', '2000');
     await page.waitForTimeout(200);
     const calc = await page.locator('#ciCalc').innerText();
-    log(/5,000/.test(calc) && /3,000/.test(calc), 'live calc: 5 x 1000 = 5,000, balance 3,000 -> "' + calc.replace(/\n/g, ' ') + '"');
+    log(/5,995/.test(calc) && /3,995/.test(calc), 'live calc: 5 x 1199 = 5,995, balance 3,995 -> "' + calc.replace(/\n/g, ' ') + '"');
 
     await page.locator('#ciForm button[value="ok"]').click();
     await page.waitForTimeout(400);
@@ -196,7 +202,7 @@ const BASE = process.env.BASE || 'http://127.0.0.1:8899';
     await page.locator('.rm[data-room="' + roomNo + '"]').click();
     await page.waitForTimeout(250);
     const kv = await page.locator('#rdBody').innerText();
-    log(/3,000/.test(kv), 'room dialog shows balance due 3,000');
+    log(/3,995/.test(kv), 'room dialog shows balance due 3,995');
     await page.locator('#rdFoot [data-act="out"]').click();
     await page.waitForTimeout(500);
     const cls = await page.locator('.rm[data-room="' + roomNo + '"]').getAttribute('class');

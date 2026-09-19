@@ -1,8 +1,8 @@
 # Krishna Grand — lodge website and reception desk system
 
-A complete, working sample IT setup for **Krishna Grand**, a mid-budget lodge
+A complete, working sample IT setup for **Krishna Grand**, a 16-room AC lodge
 under construction at Y.S. Nagar, Chinna Chauku, Kadapa (YSR Kadapa district,
-Andhra Pradesh).
+Andhra Pradesh). One room category, flat ₹1,199 a night, 24-hour checkout.
 
 Two pieces, both plain HTML/CSS/JavaScript. No build step, no server, no
 monthly fee, no framework to keep updated.
@@ -65,9 +65,14 @@ Google Business Profile), and every photo in `site/img/`.
 
 ### Photos
 
-`site/img/` holds labelled placeholders — each one says which real photo
-replaces it. Street View screenshots cannot be used: they carry Google's
-watermark and UI, and they show neighbouring businesses.
+**`photosReady` is `false`.** While it is, the site hides the gallery and shows
+a "photographs are being taken" panel in place of the room photo, so an
+unfinished lodge reads as deliberate rather than broken. Drop real `.jpg` files
+into `site/img/` using the existing filenames, flip the flag to `true`, and
+every photo appears at once.
+
+Street View screenshots cannot be used: they carry Google's watermark and phone
+UI, and they show neighbouring businesses.
 
 See `docs/LAUNCH-CHECKLIST.md` for the shot list. Landscape, bright daylight,
 1600×1200 or larger, `.jpg`. Keep the same filenames and nothing else needs

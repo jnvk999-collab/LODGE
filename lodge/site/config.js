@@ -12,10 +12,17 @@ const LODGE = {
   /* ---------- 1. IDENTITY ---------- */
   name:        "Krishna Grand",
   nameTe:      "కృష్ణా గ్రాండ్",
-  tagline:     "Clean rooms, hot water 24 hours, 24-hour checkout",
-  taglineTe:   "శుభ్రమైన గదులు, 24 గంటలు వేడి నీరు, 24 గంటల చెక్అవుట్",
+  tagline:     "One room type, one price. AC room at \u20B91,199 a night, with a full 24-hour checkout.",
+  taglineTe:   "ఒకే రకం గది, ఒకే ధర. ఏసీ గది \u20B91,199, పూర్తి 24 గంటల చెక్అవుట్.",
   established: 2026,
-  totalRooms:  24,
+  totalRooms:  16,
+
+  /* Set this to true once real photographs are in site/img/.
+     While it is false the site hides the gallery and shows a
+     clean "photograph coming" panel instead of fake placeholder
+     images, so an unfinished lodge looks deliberate rather than
+     broken. See docs/LAUNCH-CHECKLIST.md for the shot list.    */
+  photosReady: false,
 
   /* ---------- 2. CONTACT ----------
      phone: what the "Call" button dials. Keep the +91.
@@ -65,78 +72,40 @@ const LODGE = {
   upi: { id: "krishnagrand@upi", name: "Krishna Grand" },
 
   /* ---------- 5. ROOMS & TARIFF ----------
-     Prices are per room, per night, inclusive of taxes.
-     Keep this list short — 4 to 6 types maximum. Guests get
-     confused by long menus and confused guests do not book.   */
+     Krishna Grand runs ONE room category at ONE price. That is
+     a genuine selling point in a town where every lodge haggles,
+     so the site says so plainly instead of hiding it.
+
+     CONFIRM: occupancy and bed configuration below are assumed.
+     Correct them before launch.                                */
   rooms: [
     {
-      id: "nonac-single",
-      name: "Non-AC Single",
-      nameTe: "నాన్-ఏసీ సింగిల్",
-      price: 700,
-      occupancy: "1 guest",
-      beds: "1 single bed",
-      img: "img/room-nonac-single.svg",
-      features: ["Attached bathroom", "24hr hot water", "TV", "Free WiFi", "Desk"],
-      note: "Best for solo travellers and one-night stays."
-    },
-    {
-      id: "nonac-double",
-      name: "Non-AC Double",
-      nameTe: "నాన్-ఏసీ డబుల్",
-      price: 900,
-      occupancy: "2 guests",
-      beds: "1 double bed",
-      img: "img/room-nonac-double.svg",
-      features: ["Attached bathroom", "24hr hot water", "TV", "Free WiFi", "Wardrobe"],
-      note: "Our most-booked room."
-    },
-    {
-      id: "ac-double",
-      name: "AC Deluxe Double",
-      nameTe: "ఏసీ డీలక్స్ డబుల్",
-      price: 1400,
-      occupancy: "2 guests",
-      beds: "1 queen bed",
-      img: "img/room-ac-double.svg",
-      features: ["Air conditioned", "Attached bathroom", "24hr hot water", "LED TV", "Free WiFi", "Mini fridge"],
-      popular: true,
-      note: "Quietest rooms, away from the road."
-    },
-    {
-      id: "ac-triple",
-      name: "AC Triple",
-      nameTe: "ఏసీ ట్రిపుల్",
-      price: 1800,
-      occupancy: "3 guests",
-      beds: "1 double + 1 single",
-      img: "img/room-ac-triple.svg",
-      features: ["Air conditioned", "Attached bathroom", "24hr hot water", "LED TV", "Free WiFi", "Mini fridge"],
-      note: "Popular with small families."
-    },
-    {
-      id: "family-suite",
-      name: "Family Suite",
-      nameTe: "ఫ్యామిలీ సూట్",
-      price: 2400,
-      occupancy: "4-5 guests",
-      beds: "2 double beds",
-      img: "img/room-family-suite.svg",
-      features: ["Air conditioned", "2 bathrooms", "24hr hot water", "LED TV", "Free WiFi", "Fridge", "Sitting area"],
-      note: "Two connected rooms. Good for wedding guests."
+      id: "standard",
+      name: "AC Room",
+      nameTe: "ఏసీ గది",
+      price: 1199,
+      occupancy: "Up to 2 guests",   // <-- CONFIRM
+      beds: "1 double bed",          // <-- CONFIRM
+      img: "img/room-standard.svg",
+      features: ["Air conditioned", "Attached bathroom", "24hr hot water", "LED TV", "Free WiFi"],
+      note: "All 16 rooms are identical. No room-grade upselling, no rate haggling \u2014 the price on this page is the price at the desk."
     }
   ],
 
   /* ---------- 6. LONG-STAY RATES ----------
-     This is the quietest money in a district-HQ town: hospital
-     attendants and site engineers who stay for weeks. Almost
-     no lodge advertises a monthly rate. You should.           */
-  longStay: [
-    { label: "Non-AC room, per month", price: 12000, for: "Hospital attendants, students" },
-    { label: "AC room, per month",     price: 18000, for: "Site engineers, corporate" },
-    { label: "Weekly (Non-AC)",        price: 4200,  for: "Extended medical stays" },
-    { label: "Weekly (AC)",            price: 7500,  for: "Audits, project visits" }
-  ],
+     EMPTY ON PURPOSE: pricing is currently flat at \u20B91,199, so
+     the long-stay panel is hidden.
+
+     Worth reconsidering before opening. Hospital attendants at
+     RIMS and site engineers stay 1-4 weeks and choose on weekly
+     and monthly rates, and almost no lodge in Kadapa advertises
+     one. To switch the panel back on, add entries here, e.g.:
+
+       { label: "Per week",  price: 7000, for: "Hospital attendants" },
+       { label: "Per month", price: 24000, for: "Site engineers, corporate" }
+
+     Anything in this list appears on the site automatically.    */
+  longStay: [],
 
   /* ---------- 7. AMENITIES ----------
      Order matters. Put the things budget guests actually
@@ -144,7 +113,7 @@ const LODGE = {
   amenities: [
     { icon: "hot-water", label: "24hr hot water",    te: "24 గంటలు వేడి నీరు" },
     { icon: "clock",     label: "24-hour checkout",  te: "24 గంటల చెక్అవుట్" },
-    { icon: "breakfast", label: "Free breakfast",    te: "ఉచిత టిఫిన్" },
+    { icon: "coffee",    label: "Free coffee \u00B7 2 per guest", te: "ఉచిత కాఫీ \u00B7 ఒక్కరికి 2" },
     { icon: "wifi",      label: "Free WiFi",         te: "ఉచిత వైఫై" },
     { icon: "parking",   label: "Free parking",      te: "ఉచిత పార్కింగ్" },
     { icon: "power",     label: "Power backup",      te: "పవర్ బ్యాకప్" },
@@ -194,7 +163,7 @@ const LODGE = {
     {
       title: "Pilgrim & family stay",
       titleTe: "భక్తులు & కుటుంబాలు",
-      body: "2 km from Ameen Peer Dargah and on the road to Tirupati. Early check-in for overnight trains, safe parking for your own vehicle, and pure-veg breakfast from 6 AM for early darshan.",
+      body: "2 km from Ameen Peer Dargah and on the road to Tirupati. Early check-in for overnight trains, safe parking for your own vehicle, and complimentary coffee at the desk before an early darshan.",
       cta: "Book a pilgrim room"
     },
     {
@@ -206,7 +175,7 @@ const LODGE = {
     {
       title: "Exam-day block booking",
       titleTe: "పరీక్ష రోజు బుకింగ్",
-      body: "APPSC, TET, bank and railway exam candidates — reserve early, we hold rooms for exam weekends. Wake-up call, early breakfast, and drop to the exam centre arranged on request.",
+      body: "APPSC, TET, bank and railway exam candidates — reserve early, we hold rooms for exam weekends. Wake-up call, coffee before you leave, and a drop to the exam centre arranged on request.",
       cta: "Reserve for exam day"
     }
   ],
@@ -216,8 +185,8 @@ const LODGE = {
     { img: "img/gallery-exterior.svg",  caption: "Front entrance" },
     { img: "img/gallery-reception.svg", caption: "Reception, open 24 hours" },
     { img: "img/gallery-bathroom.svg",  caption: "Attached bathroom, hot water 24hr" },
-    { img: "img/gallery-breakfast.svg", caption: "Complimentary breakfast" },
-    { img: "img/gallery-parking.svg",   caption: "Covered parking" },
+    { img: "img/gallery-coffee.svg",    caption: "Complimentary coffee" },
+    { img: "img/gallery-parking.svg",   caption: "Parking" },
     { img: "img/gallery-corridor.svg",  caption: "Corridor and lift" }
   ],
 
@@ -240,7 +209,7 @@ const LODGE = {
     "Couples welcome with valid ID. Local IDs accepted.",
     "Children below 8 years stay free using existing bedding.",
     "Extra bed ₹300 per night.",
-    "Pure-vegetarian kitchen. Outside food allowed in rooms.",
+    "Complimentary coffee, two cups per guest. Outside food allowed in rooms.",
     "Free cancellation up to 6 hours before check-in on direct bookings."
   ],
 
@@ -251,7 +220,9 @@ const LODGE = {
     goibibo: "",
     booking: ""
   },
-  directDiscount: 10  // % cheaper than OTA, shown as the reason to call direct
+  /* Set above 0 to advertise a direct-booking discount against the
+     OTAs. Held at 0 because pricing is currently flat at \u20B91,199. */
+  directDiscount: 0
 };
 
 /* Expose on window. A top-level `const` in a classic script does NOT

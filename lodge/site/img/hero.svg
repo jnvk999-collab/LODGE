@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Hero / Building Front placeholder">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Building Front placeholder">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#101a52"/><stop offset="100%" stop-color="#7c3aed"/>
@@ -15,7 +15,7 @@
     <path d="M-70 34L-20 -8l32 26 24-20 34 28"/>
   </g>
   <text x="400" y="392" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif"
-        font-size="40" font-weight="700" fill="#fff">Hero / Building Front</text>
+        font-size="40" font-weight="700" fill="#fff">Building Front</text>
   <text x="400" y="440" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif"
         font-size="23" fill="rgba(255,255,255,.92)">Replace with a real photo</text>
   <text x="400" y="478" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif"

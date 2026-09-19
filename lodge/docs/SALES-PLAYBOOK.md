@@ -14,7 +14,7 @@ which is why most lodges fight on price.
 
 | Segment | Stay length | Why they pick you | How hard to reach |
 |---|---|---|---|
-| **Hospital attendants** | 3–10 nights | Weekly rate, hot water any hour, flexible checkout | Easy — nobody else is targeting them |
+| **Hospital attendants** | 3–10 nights | Hot water any hour, 24-hour checkout, a weekly rate if you add one | Easy — nobody else is targeting them |
 | **Corporate / contractor** | 2–4 weeks | Monthly rate, GST invoice, single bill | Easy — direct approach works |
 | **Pilgrims** | 1–2 nights | Near the dargah, early breakfast, safe parking | Medium — via travel agents |
 | **Exam candidates** | 1 night | Known exam dates, wake-up call, early breakfast | Medium — predictable calendar |
@@ -113,8 +113,9 @@ and 4.5★ is reachable without spending much.
 - **24-hour checkout, not 11 AM.** Trains into Kadapa arrive at awkward
   hours. This is a genuine differentiator and costs nothing on a day when
   the room would sit empty anyway.
-- **Free breakfast.** Tie up with a nearby tiffin centre at ~₹25/head. The
-  biggest single lever on OTA rating.
+- **The free coffee, served properly.** Two cups per guest is what you offer,
+  so make the cups decent and the counter clean. A small courtesy done well
+  gets mentioned in reviews; done carelessly it gets mentioned too.
 - **WiFi that works.** Rare enough in this segment that it gets mentioned.
 - **A bathroom that photographs well.** Then photograph it.
 
@@ -125,24 +126,31 @@ advertised on a board at reception.
 
 ## 4. Pricing
 
-Do not compete on the base rate. Vary by date instead.
+Krishna Grand currently runs **one rate: ₹1,199, every room, every night.**
 
-| When | What to do |
-|---|---|
-| Thursdays and Urs at Ameen Peer Dargah | +30–50% |
-| APPSC / TET / bank / railway exam weekends | +30–50%, and take bookings 3 weeks early |
-| Wedding season | +30%, sell family rooms in blocks |
-| Normal weekday | Base rate |
-| Long stay (7+ nights) | 25–30% below base — you are buying occupancy certainty |
+That is a defensible position, and the website sells it as one — "the price on
+this page is the price at the desk" is a real differentiator in a town where
+every lodge haggles. It also makes the front desk simple, which matters when
+staff turn over.
 
-Most lodges in town charge one flat rate all year. That leaves serious money
-on the table on maybe 40 nights a year and prices you too high on the other
-325.
+Two things to revisit once you have three months of data in the Reports tab:
 
-Track the exam calendar and the dargah calendar. Put them on a wall
-calendar at reception.
+**A long-stay rate.** This is the one worth adding. Hospital attendants at RIMS
+and site engineers stay one to four weeks and choose almost entirely on the
+weekly or monthly number. Nobody in Kadapa advertises one. At ₹1,199 flat, a
+seven-night guest pays ₹8,393; a ₹7,000 weekly rate costs you ₹1,393 and buys a
+week of guaranteed occupancy from a segment nobody else is competing for. The
+panel is already built — see `longStay` in `config.js`.
 
----
+**Peak dates.** Urs at Ameen Peer Dargah, exam weekends, and wedding season are
+nights you will sell out regardless. Flat pricing leaves money on the table
+there. But do not raise rates until the flat-rate reputation is established;
+being known as the lodge that does not gouge on festival days is worth more in
+year one than the extra margin on forty nights.
+
+Keep the exam calendar and the dargah calendar on the reception wall either
+way — even at a flat rate you need to know which nights will fill so you stop
+giving rooms away to walk-ins on a night you could have pre-sold.
 
 ## 5. What to measure
 

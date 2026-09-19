@@ -157,32 +157,30 @@
   function nextId(p) { return p + (DB.seq++); }
 
   /* Build the room list from the tariff in config.js.
-     Floors of 6. Cheaper rooms downstairs, AC upstairs, which
-     is how most lodges of this size are actually laid out.   */
+     Krishna Grand is 16 identical AC rooms over 4 floors, 4 to a
+     floor, numbered 101-104, 201-204 and so on.
+
+     If the real building differs, change PER_FLOOR (and the room
+     count in config.js). Everything else follows from here.     */
+  var PER_FLOOR = 4;
+
   function buildRooms() {
-    var plan = [
-      { type: 'nonac-single', count: 6 },
-      { type: 'nonac-double', count: 6 },
-      { type: 'ac-double',    count: 6 },
-      { type: 'ac-triple',    count: 4 },
-      { type: 'family-suite', count: 2 }
-    ];
-    var rooms = [], n = 0;
-    plan.forEach(function (p) {
-      for (var i = 0; i < p.count; i++) {
-        var floor = Math.floor(n / 6) + 1;
-        var idx = (n % 6) + 1;
-        rooms.push({
-          no: String(floor * 100 + idx),
-          type: p.type,
-          floor: floor,
-          state: 'vacant'   // vacant | cleaning | blocked
-        });
-        n++;
-      }
-    });
+    var type = (C.rooms[0] && C.rooms[0].id) || 'standard';
+    var total = C.totalRooms || C.rooms.length;
+    var rooms = [];
+    for (var n = 0; n < total; n++) {
+      var floor = Math.floor(n / PER_FLOOR) + 1;
+      var idx = (n % PER_FLOOR) + 1;
+      rooms.push({
+        no: String(floor * 100 + idx),
+        type: type,
+        floor: floor,
+        state: 'vacant'   // vacant | cleaning | blocked
+      });
+    }
     return rooms;
   }
+
   function roomType(id) {
     return C.rooms.filter(function (r) { return r.id === id; })[0] || { name: id, price: 0 };
   }
@@ -753,7 +751,7 @@
     var used = {};   // room -> last occupied date, to avoid overlaps
     for (var day = 45; day >= 0; day--) {
       var d = addDays(today(), -day);
-      var arrivals = 3 + Math.floor(Math.random() * 6);
+      var arrivals = 2 + Math.floor(Math.random() * 4);
       for (var a = 0; a < arrivals; a++) {
         var rm = pick(DB.rooms);
         if (used[rm.no] && used[rm.no] > d) continue;
@@ -777,10 +775,8 @@
         };
         DB.guests.push(g);
 
-        // long stays get a discount, which is how it works in reality
+        // pricing is flat, so every stay bills at the same rate
         var rate = ty.price;
-        if (n >= 7) rate = Math.round(ty.price * 0.72 / 10) * 10;
-        else if (n >= 4) rate = Math.round(ty.price * 0.85 / 10) * 10;
 
         var ended = addDays(d, n) <= today();
         DB.stays.push({

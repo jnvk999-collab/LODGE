@@ -26,12 +26,20 @@ Everything here is in `site/config.js`.
       Directions (by car), enter the real km and minutes, set `verified:
       true`. Until then they display with a `~` so the site does not promise
       a number nobody checked.
-- [ ] **Room types and prices** — match what is actually being built. Room
-      count per type is set in `pms/js/pms.js` → `buildRooms()`.
-- [ ] **Long-stay rates** — the weekly and monthly numbers. Decide these
-      before opening; they are how you win hospital and contractor business.
-- [ ] **Amenities** — delete anything you will not actually provide. A lift
-      that does not work costs you a one-star review.
+- [ ] **Room occupancy and beds** — the tariff is confirmed (16 AC rooms, flat
+      ₹1,199, 24-hour checkout), but `occupancy` and `beds` in `config.js` are
+      still assumed. Confirm both.
+- [ ] **Room numbering** — 16 rooms are laid out 4 per floor over 4 floors
+      (101–104, 201–204, …). If the building differs, change `PER_FLOOR` in
+      `pms/js/pms.js`.
+- [ ] **Long-stay rates** — currently OFF (`longStay: []`), because pricing is
+      flat. Worth reconsidering: hospital attendants and site engineers choose
+      on weekly and monthly rates, and no lodge in Kadapa advertises one. See
+      the note in `config.js` for how to switch the panel on.
+- [ ] **Amenities** — ⚠️ only the AC, hot water, 24-hour checkout and free
+      coffee (2 cups per guest) are confirmed. Go through the rest of the list
+      in `config.js` and **delete anything you will not actually provide**. A
+      lift that does not work costs you a one-star review.
 - [ ] **Policies** — confirm the ID rule, the couples rule, extra bed charge,
       cancellation window.
 - [ ] **Reviews** — ⚠️ the three in the file are samples. **Delete them.**
@@ -53,17 +61,18 @@ existing placeholders and nothing else needs changing.
 | Filename | Shot |
 |---|---|
 | `hero.jpg` | Building front, whole facade, from across the street |
+| `room-standard.jpg` | **The most important photo after the bathroom.** Bed made, curtains open, AC unit in frame, shot from a corner at chest height |
 | `gallery-exterior.jpg` | Entrance and gate, clean, nothing parked in front |
 | `gallery-reception.jpg` | Reception desk, lights on, staff member present |
 | `gallery-bathroom.jpg` | **The most important photo on the site.** Clean, dry, well lit, geyser visible |
-| `gallery-breakfast.jpg` | Breakfast laid out, idli/dosa, on a clean table |
+| `gallery-coffee.jpg` | The coffee counter or a served cup, on a clean surface |
 | `gallery-parking.jpg` | Parking area with a vehicle in it, showing the gate |
 | `gallery-corridor.jpg` | Corridor and lift, lights on |
-| `room-nonac-single.jpg` | Bed made, curtains open, from the doorway corner |
-| `room-nonac-double.jpg` | Same framing |
-| `room-ac-double.jpg` | Same framing, AC unit in frame |
-| `room-ac-triple.jpg` | Same framing, all beds visible |
-| `room-family-suite.jpg` | Wide shot showing both rooms |
+
+Once the files are in `site/img/`, set **`photosReady: true`** in
+`site/config.js`. Until you do, the site hides the gallery and shows a
+"photographs are being taken" panel instead of fake placeholder images, so an
+unfinished lodge looks deliberate rather than broken.
 
 Rules that matter more than the camera:
 - Bed made, taut. No bedsheet creases, no personal items.

@@ -14,13 +14,17 @@
     en: {
       cityLine: C.address.city + ', ' + C.address.state,
       heroEyebrow: 'Lodge in ' + (C.address.locality || C.address.line2) + ' · ' + C.address.city,
-      heroTitle: 'A clean room in ' + C.address.city + ', from ₹' + minPrice() + ' a night',
+      heroTitle: flatRate()
+        ? 'A clean AC room in ' + C.address.city + ', ₹' + inr0(minPrice()) + ' a night'
+        : 'A clean room in ' + C.address.city + ', from ₹' + inr0(minPrice()) + ' a night',
       tagline: C.tagline,
       ctaWhatsApp: 'Book on WhatsApp',
       ctaCall: 'Call now',
-      directNote: 'Booking direct is about ' + C.directDiscount + '% cheaper than travel websites. Reception answers 24 hours.',
+      directNote: C.directDiscount > 0
+        ? 'Booking direct is about ' + C.directDiscount + '% cheaper than travel websites. Reception answers 24 hours.'
+        : 'Same rate every day of the year — no weekend or festival surcharge. Reception answers 24 hours.',
       h2Rooms: 'Rooms and tariff',
-      pRooms: 'All prices are per room, per night, taxes included. No hidden charges at checkout.',
+      pRooms: 'One rate per room, per night, taxes included. No hidden charges at checkout.',
       h3LongStay: 'Staying a week or a month?',
       pLongStay: 'If you are attending to a patient at a hospital, posted here on work, or on a long site assignment — ask for these rates. They are much cheaper than the nightly tariff.',
       h2Amenities: 'What you get in every room',
@@ -52,19 +56,26 @@
       ftrReg: 'Open 24 hours · ' + C.totalRooms + ' rooms · GST invoice available on request',
       demoNote: 'DEMO SITE — this is a working sample built with placeholder details. Business name, phone numbers, prices, photos and reviews are examples only and must be replaced with real information before this goes live.',
       night: 'per night', perRoom: 'per room',
+      photoSoon: 'Photographs are being taken',
+      photoSoonSub: 'The lodge is still being finished. Real photographs of the rooms, bathroom and entrance go here before opening.',
+      oneRate: 'One rate, every room, every night',
       estFor: 'Estimated total', estNights: 'night', estNightsP: 'nights',
       estRooms: 'room', estRoomsP: 'rooms', estOnArrival: 'Payable at the lodge. Confirm on WhatsApp.'
     },
     te: {
       cityLine: 'కడప, ఆంధ్రప్రదేశ్',
       heroEyebrow: 'చిన్న చౌకు, కడప · లాడ్జి',
-      heroTitle: 'కడపలో శుభ్రమైన గది, రాత్రికి ₹' + minPrice() + ' నుండి',
+      heroTitle: flatRate()
+        ? 'కడపలో శుభ్రమైన ఏసీ గది, రాత్రికి ₹' + inr0(minPrice())
+        : 'కడపలో శుభ్రమైన గది, రాత్రికి ₹' + inr0(minPrice()) + ' నుండి',
       tagline: C.taglineTe,
       ctaWhatsApp: 'వాట్సాప్‌లో బుక్ చేయండి',
       ctaCall: 'ఫోన్ చేయండి',
-      directNote: 'నేరుగా బుక్ చేస్తే ట్రావెల్ వెబ్‌సైట్‌ల కన్నా సుమారు ' + C.directDiscount + '% తక్కువ. రిసెప్షన్ 24 గంటలు అందుబాటులో.',
+      directNote: C.directDiscount > 0
+        ? 'నేరుగా బుక్ చేస్తే ట్రావెల్ వెబ్‌సైట్‌ల కన్నా సుమారు ' + C.directDiscount + '% తక్కువ. రిసెప్షన్ 24 గంటలు.'
+        : 'సంవత్సరం పొడవునా ఒకే ధర — వారాంతపు లేదా పండుగ అదనపు ఛార్జీలు లేవు. రిసెప్షన్ 24 గంటలు.',
       h2Rooms: 'గదులు మరియు ధరలు',
-      pRooms: 'అన్ని ధరలు ఒక గదికి, ఒక రాత్రికి, పన్నులతో కలిపి. చెక్అవుట్ సమయంలో అదనపు ఛార్జీలు లేవు.',
+      pRooms: 'ఒక గదికి, ఒక రాత్రికి ఒకే ధర, పన్నులతో కలిపి. చెక్అవుట్ సమయంలో అదనపు ఛార్జీలు లేవు.',
       h3LongStay: 'వారం లేదా నెల ఉండాలా?',
       pLongStay: 'ఆసుపత్రిలో రోగి దగ్గర ఉంటున్నా, ఉద్యోగ రీత్యా వచ్చినా, సైట్ పనిపై ఎక్కువ రోజులు ఉండాల్సి వచ్చినా — ఈ రేట్లు అడగండి. రోజువారీ ధర కన్నా చాలా తక్కువ.',
       h2Amenities: 'ప్రతి గదిలో లభించేవి',
@@ -96,6 +107,9 @@
       ftrReg: '24 గంటలు తెరిచి ఉంటుంది · ' + C.totalRooms + ' గదులు · అడిగితే GST బిల్లు ఇవ్వబడును',
       demoNote: 'DEMO SITE — ఇది నమూనా వివరాలతో తయారు చేసిన శాంపిల్ వెబ్‌సైట్. పేరు, ఫోన్ నంబర్లు, ధరలు, ఫోటోలు, రివ్యూలు అన్నీ ఉదాహరణలు మాత్రమే. లైవ్‌కి వెళ్ళే ముందు అసలు వివరాలతో మార్చాలి.',
       night: 'ఒక రాత్రికి', perRoom: 'ఒక గదికి',
+      photoSoon: 'ఫోటోలు తీయడం జరుగుతోంది',
+      photoSoonSub: 'లాడ్జి పనులు ఇంకా పూర్తి కావలసి ఉంది. గదులు, బాత్రూమ్, ప్రవేశ ద్వారం అసలు ఫోటోలు ప్రారంభానికి ముందు ఇక్కడ వస్తాయి.',
+      oneRate: 'అన్ని గదులకు, అన్ని రోజులకు ఒకే ధర',
       estFor: 'అంచనా మొత్తం', estNights: 'రాత్రి', estNightsP: 'రాత్రులు',
       estRooms: 'గది', estRoomsP: 'గదులు', estOnArrival: 'లాడ్జిలో చెల్లించాలి. వాట్సాప్‌లో ధృవీకరించండి.'
     }
@@ -104,6 +118,10 @@
   var lang = 'en';
   function t(k) { return T[lang][k] != null ? T[lang][k] : T.en[k]; }
   function minPrice() { return Math.min.apply(null, C.rooms.map(function (r) { return r.price; })); }
+  function inr0(n) { return Number(n).toLocaleString('en-IN'); }
+  // one room category, or several that all cost the same
+  function flatRate() { return C.rooms.length === 1 || minPrice() === Math.max.apply(null, C.rooms.map(function (r) { return r.price; })); }
+  function hasPhotos() { return C.photosReady === true; }
   function inr(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
@@ -180,6 +198,9 @@
       (lang === 'te' ? 'కడపలో లాడ్జి' : 'Lodge in ' + C.address.city);
     $('.brand-mark').textContent = C.name.split(/\s+/).slice(0, 2).map(function (w) { return w[0]; }).join('').toUpperCase();
 
+    var heroImg = $('.hero-bg img');
+    if (heroImg) heroImg.hidden = !hasPhotos();
+
     renderHeroPills();
     renderTrust();
     renderRooms();
@@ -211,12 +232,17 @@
   }
 
   function renderRooms() {
+    $('#roomsGrid').className = 'rooms' + (C.rooms.length === 1 ? ' is-single' : '');
     $('#roomsGrid').innerHTML = C.rooms.map(function (r) {
       var msg = 'Hello ' + C.name + ', I want to book the ' + r.name + ' (' + inr(r.price) + ' per night). Is it available?';
       return '' +
       '<article class="room' + (r.popular ? ' is-popular' : '') + '">' +
         (r.popular ? '<span class="room-tag">' + (lang === 'te' ? 'ఎక్కువ బుకింగ్' : 'Most booked') + '</span>' : '') +
-        '<div class="room-img"><img src="' + esc(r.img) + '" alt="' + esc(r.name) + '" loading="lazy" width="800" height="600"></div>' +
+        (hasPhotos()
+          ? '<div class="room-img"><img src="' + esc(r.img) + '" alt="' + esc(r.name) + '" loading="lazy" width="800" height="600"></div>'
+          : '<div class="room-img photo-pending"><span class="pp-ic" aria-hidden="true">\uD83D\uDCF7</span>' +
+            '<strong>' + esc(t('photoSoon')) + '</strong>' +
+            '<span class="pp-sub">' + esc(t('photoSoonSub')) + '</span></div>') +
         '<div class="room-bd">' +
           '<h3 class="room-nm">' + esc(lang === 'te' && r.nameTe ? r.nameTe : r.name) + '</h3>' +
           '<div class="room-meta"><span>👤 ' + esc(r.occupancy) + '</span><span>🛏 ' + esc(r.beds) + '</span></div>' +
@@ -232,6 +258,9 @@
   }
 
   function renderLongStay() {
+    var box = document.getElementById('longstay');
+    if (box) box.hidden = !C.longStay.length;
+    if (!C.longStay.length) { $('#lsGrid').innerHTML = ''; return; }
     $('#lsGrid').innerHTML = C.longStay.map(function (l) {
       return '<div class="ls"><b>' + inr(l.price) + '</b><strong>' + esc(l.label) + '</strong><span>' + esc(l.for) + '</span></div>';
     }).join('');
@@ -268,6 +297,11 @@
   }
 
   function renderGallery() {
+    // No gallery of placeholder boxes. Until real photographs exist the
+    // whole section is removed, which reads as deliberate rather than broken.
+    var sec = document.getElementById('gallery');
+    if (sec) sec.hidden = !hasPhotos() || !C.gallery.length;
+    if (!hasPhotos()) { $('#galGrid').innerHTML = ''; return; }
     $('#galGrid').innerHTML = C.gallery.map(function (g) {
       return '<figure><img src="' + esc(g.img) + '" alt="' + esc(g.caption) + '" loading="lazy" width="800" height="600">' +
              '<figcaption>' + esc(g.caption) + '</figcaption></figure>';
