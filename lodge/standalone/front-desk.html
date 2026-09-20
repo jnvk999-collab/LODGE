@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reception Desk — Krishna Grand</title>
+<meta name="description" content="Front desk system: room board, check-in and check-out, guest register, daily occupancy and revenue.">
+<meta name="theme-color" content="#0b1530">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128682;</text></svg>">
+<style>
+/* ===========================================================
+   pms.css — reception desk
+   Designed for a cheap Android tablet or an old laptop at the
+   front desk. Big touch targets, high contrast, no animation
+   that gets in the way of someone checking in a guest at 2 AM.
+   =========================================================== */
+
+/* ---------- palette: white and blue ----------
+   A clean white dashboard with a blue header, the way hotel
+   front-desk software normally looks. Blue carries identity and
+   emphasis; the room-status colours stay separate from it,
+   because they mean something and must not be confused with
+   branding. */
+:root{
+  --blue-900:#0b2559; --blue-800:#14357f; --blue-700:#1d4ed8;
+  --blue-600:#2563eb; --blue-500:#3b82f6; --blue-200:#bfdbfe;
+  --blue-100:#dbeafe; --blue-50:#eff6ff;
+
+  /* status colours: meaning, not decoration */
+  --st-vac:#15803d;  --st-vac-bg:#f0fdf4;
+  --st-occ:#2563eb;  --st-occ-bg:#eff6ff;
+  --st-due:#c2620a;  --st-due-bg:#fff7ed;
+  --st-cln:#64748b;  --st-cln-bg:#f1f5f9;
+  --st-blk:#dc2626;  --st-blk-bg:#fef2f2;
+
+  --green:#15803d; --green-50:#f0fdf4;
+  --red:#dc2626;   --red-50:#fef2f2;
+  --blue:#2563eb;  --blue-bg:#eff6ff;
+  --grey:#64748b;  --grey-50:#f1f5f9;
+  --amber:#c2620a; --amber-dk:#9a4d06;
+  --gold:#2563eb; --gold-lt:#3b82f6; --gold-dk:#1d4ed8;
+
+  --brand-900:#0b2559; --brand-700:#1d4ed8; --brand-600:#2563eb; --brand-50:#eff6ff;
+
+  --bg:#f4f7fb; --card:#ffffff; --ink:#0f172a; --ink-2:#475569; --ink-3:#94a3b8;
+  --line:#e2e8f0; --line-2:#cbd5e1;
+  --shadow:0 1px 2px rgba(15,23,42,.05), 0 4px 14px rgba(15,23,42,.06);
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1220; --card:#121b2e; --ink:#e8eef9; --ink-2:#a3b0c6; --ink-3:#7c8aa3;
+    --line:#1f2a40; --line-2:#2c3b57; --brand-50:#15233f; --grey-50:#16203a;
+    --blue-50:#15233f; --blue-100:#1b2d52;
+    --st-vac-bg:#0c2418; --st-occ-bg:#15233f; --st-due-bg:#2a1c0c;
+    --st-cln-bg:#1a2236; --st-blk-bg:#2c1214;
+    --green-50:#0c2418; --red-50:#2c1214; --blue-bg:#15233f;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.35);
+  }
+}
+
+*,*::before,*::after{box-sizing:border-box}
+/* An author `display` rule beats the browser's own [hidden]{display:none},
+   which would leave a closed overlay as an invisible full-screen layer
+   swallowing every tap. This must come before any component sets display. */
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  /* System faces only: this page has to open on a reception device with
+     no internet, so it must not wait on a webfont host. */
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+body.te{font-family:'Noto Sans Telugu',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+h1,h2{margin:0;line-height:1.25;letter-spacing:-.01em}
+p{margin:0}
+:focus-visible{outline:3px solid var(--blue-600);outline-offset:2px;border-radius:6px}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:50;color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.2);
+  background:linear-gradient(105deg,var(--blue-700),var(--blue-600) 60%,var(--blue-500));
+  border-bottom:0}
+.top-in{display:flex;align-items:center;gap:12px;padding:11px 16px;flex-wrap:wrap}
+.top-brand{display:flex;align-items:center;gap:11px;margin-right:auto}
+.top-brand .dot{width:10px;height:10px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.25)}
+.top-brand strong{display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  font-size:23px;font-weight:700;color:#fff;letter-spacing:.01em}
+.top-brand small{display:block;font-size:12.5px;color:#c9ddfb}
+.top-act{display:flex;gap:7px;flex-wrap:wrap}
+.mini{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;
+  border-radius:999px;padding:8px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;
+}
+.mini:hover{background:rgba(255,255,255,.22)}
+.mini-go{background:#fff;border-color:#fff;color:var(--blue-700);font-weight:800}
+.mini-go:hover{filter:brightness(1.07)}
+
+.tabs{display:flex;gap:2px;padding:0 10px;overflow-x:auto;background:rgba(255,255,255,.10);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  background:none;border:0;border-bottom:3px solid transparent;color:#c9ddfb;
+  padding:12px 15px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.tab:hover{color:#fff}
+.tab.is-on{color:#fff;border-color:#fff}
+
+main{padding:16px;max-width:1400px;margin-inline:auto}
+.panel{display:none}
+.panel.is-on{display:block}
+
+/* ---------- bars & filters ---------- */
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.bar .mini{background:var(--card);border-color:var(--line-2);color:var(--ink)}
+.bar .mini:hover{border-color:var(--brand-600);background:var(--brand-50)}
+.bar .mini-go{background:var(--brand-700);border-color:var(--brand-700);color:#fff}
+.bar .mini-go:hover{background:var(--brand-900);color:#fff}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.filters label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.filters input,.filters select{
+  font:inherit;font-size:15px;padding:8px 11px;border:1px solid var(--line-2);
+  border-radius:9px;background:var(--card);color:var(--ink);
+}
+.filters input[type=search]{min-width:210px}
+.hint{font-size:13.5px;color:var(--ink-3);margin-bottom:12px;max-width:88ch;line-height:1.6}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend b{font-weight:600;color:var(--ink-2)}
+.legend em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums}
+.sw{width:13px;height:13px;border-radius:4px;display:inline-block;flex:none}
+.sw-vac{background:var(--st-vac)} .sw-occ{background:var(--st-occ)} .sw-due{background:var(--st-due)}
+.sw-cln{background:var(--st-cln)} .sw-blk{background:var(--st-blk)}
+.occ-pill{background:var(--blue-600);color:#dbeafe;border:0;border-radius:999px;
+  padding:9px 19px;font-size:13px;box-shadow:0 3px 12px rgba(37,99,235,.32)}
+.occ-pill b{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em}
+
+/* ---------- room board ---------- */
+.floors{display:flex;flex-direction:column;gap:20px}
+.floor h2{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:800;margin-bottom:10px}
+/* auto-fit (not auto-fill) collapses the empty tracks, so a floor of four
+   rooms spreads across the board instead of huddling on the left. */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;max-width:1120px}
+.rm{
+  background:var(--card);border:1px solid var(--line);border-left:5px solid var(--grey);
+  border-radius:var(--r);padding:12px;text-align:left;cursor:pointer;font:inherit;color:inherit;
+  box-shadow:var(--shadow);min-height:104px;display:flex;flex-direction:column;gap:3px;
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+.rm:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(11,21,48,.12),0 12px 28px rgba(11,21,48,.14)}
+.rm:active{transform:translateY(0)}
+.rm-no{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1;color:var(--ink)}
+.rm-ty{font-size:11.5px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.rm-gs{font-size:13.5px;font-weight:700;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rm-sub{font-size:12px;color:var(--ink-3);margin-top:auto}
+.rm-st{
+  align-self:flex-start;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  padding:3px 8px;border-radius:999px;margin-top:5px;
+}
+.rm-vac{border-left-color:var(--st-vac)} .rm-vac .rm-st{background:var(--st-vac-bg);color:var(--st-vac)}
+.rm-occ{border-left-color:var(--st-occ)} .rm-occ .rm-st{background:var(--st-occ-bg);color:var(--st-occ)}
+.rm-due{border-left-color:var(--st-due)} .rm-due .rm-st{background:var(--st-due-bg);color:var(--st-due)}
+.rm-cln{border-left-color:var(--st-cln)} .rm-cln .rm-st{background:var(--st-cln-bg);color:var(--st-cln)}
+.rm-blk{border-left-color:var(--st-blk)} .rm-blk .rm-st{background:var(--st-blk-bg);color:var(--st-blk)}
+/* a room that just changed in the simulation pulses once */
+.rm.just-changed{animation:pulse 1.1s ease}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(37,99,235,.55)}
+  100%{box-shadow:0 0 0 16px rgba(37,99,235,0)}
+}
+@media (prefers-reduced-motion:reduce){.rm.just-changed{animation:none}}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:11px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--brand-600);
+  border-radius:var(--r);padding:15px;box-shadow:var(--shadow)}
+.kpi{border-top-color:var(--blue-600)}
+.kpi b{color:var(--blue-700)}
+.kpi b{display:block;font-size:31px;font-weight:800;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;color:var(--blue-700);line-height:1.08}
+.kpi.kpi-sm b{font-family:'Manrope',system-ui,sans-serif;font-size:17px;font-weight:800;line-height:1.3}
+.kpi span{display:block;font-size:12px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.kpi small{display:block;font-size:12.5px;color:var(--ink-2);margin-top:6px}
+
+/* ---------- boxes & tables ---------- */
+.two{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:1000px){ .two{grid-template-columns:1fr 1fr} }
+.box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:17px;box-shadow:var(--shadow);margin-bottom:16px}
+.box h2{font-size:16px;font-weight:800;margin-bottom:13px;letter-spacing:-.01em}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+.tbl th{
+  text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:800;padding:0 12px 9px 0;border-bottom:2px solid var(--line-2);white-space:nowrap;
+}
+.tbl td{padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover{background:var(--brand-50)}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;padding-right:0}
+.tbl .empty{text-align:center;color:var(--ink-3);padding:26px 0;font-style:italic}
+.pill{display:inline-block;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;
+  background:var(--brand-50);color:var(--brand-700);letter-spacing:.03em}
+.wa{display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:var(--green);font-weight:700;font-size:13px;white-space:nowrap}
+.wa:hover{text-decoration:underline}
+
+/* ---------- chart ---------- */
+.chart{display:flex;align-items:flex-end;gap:3px;height:170px;padding-top:12px;overflow-x:auto}
+.cbar{flex:1;min-width:9px;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
+.cbar i{display:block;border-radius:3px 3px 0 0;min-height:2px;transition:filter .12s;
+  background:linear-gradient(180deg,var(--blue-500),var(--blue-700))}
+.cbar:hover i{filter:brightness(1.35) saturate(1.3)}
+.cbar::after{
+  content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);font-size:11px;font-weight:600;padding:5px 9px;border-radius:6px;
+  white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:5;
+}
+.cbar:hover::after{opacity:1}
+
+/* ---------- overlays ---------- */
+.dlg-wrap{
+  position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+  padding:14px;background:rgba(15,23,42,.55);overflow-y:auto;
+  padding-top:max(14px,env(safe-area-inset-top,0px));
+  padding-bottom:max(14px,env(safe-area-inset-bottom,0px));
+}
+.dlg{
+  border:0;border-radius:16px;padding:0;max-width:620px;width:100%;margin:auto;
+  background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+/* on a phone the overlay behaves as a full-height sheet */
+@media (max-width:560px){
+  .dlg-wrap{padding:0;align-items:stretch}
+  .dlg{border-radius:0;min-height:100%}
+  .dlg-ft{border-radius:0}
+}
+.dlg-hd{display:flex;align-items:center;gap:12px;padding:17px 20px;border-bottom:1px solid var(--line)}
+.dlg-hd h2{font-size:18px;font-weight:800;margin-right:auto}
+.dlg-hd b{color:var(--brand-700)}
+.x{background:none;border:0;font-size:27px;line-height:1;color:var(--ink-3);cursor:pointer;padding:0 5px}
+.x:hover{color:var(--red)}
+.dlg-bd{padding:20px;display:flex;flex-direction:column;gap:13px}
+.dlg-ft{display:flex;gap:9px;justify-content:flex-end;padding:15px 20px;border-top:1px solid var(--line);
+  background:var(--grey-50);border-radius:0 0 16px 16px;flex-wrap:wrap}
+.dlg-ft .mini{background:var(--card);border-color:var(--line-2);color:var(--ink)}
+.dlg-ft .mini-go{background:var(--brand-700);border-color:var(--brand-700);color:#fff}
+.dlg-ft .mini-danger{background:var(--red-50);border-color:var(--red);color:var(--red)}
+.f{display:flex;flex-direction:column;gap:5px}
+.f span{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.f input,.f select{
+  font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line-2);
+  border-radius:9px;background:var(--bg);color:var(--ink);width:100%;
+}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){ .f2{grid-template-columns:1fr} }
+.calc{background:var(--brand-50);border:1px solid var(--brand-600);border-radius:9px;padding:12px 14px;font-size:14px;font-weight:600}
+.calc b{font-size:19px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:14.5px}
+.kv dt{color:var(--ink-3);font-weight:600}
+.kv dd{margin:0;font-weight:700}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translate(-50%,120%);
+  background:var(--ink);color:var(--bg);padding:13px 22px;border-radius:999px;
+  font-size:14.5px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.28);
+  z-index:90;transition:transform .22s ease;max-width:calc(100% - 32px);text-align:center;
+}
+.toast.on{transform:translate(-50%,0)}
+
+/* ---------- demo bar ---------- */
+.demobar{
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap;
+  padding:10px 16px;background:var(--blue-900);color:#dbeafe;font-size:13px;
+}
+.demo-tag{
+  background:#fff;color:var(--blue-700);font-size:10.5px;font-weight:800;
+  letter-spacing:.12em;padding:3px 9px;border-radius:4px;flex:none;
+}
+.demo-txt{color:#b7ccf0;margin-right:auto}
+.demo-act{display:flex;gap:7px;flex-wrap:wrap}
+.sim{
+  display:inline-flex;align-items:center;gap:7px;
+  background:#fff;color:var(--blue-700);border:0;border-radius:999px;
+  padding:7px 15px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;
+}
+.sim:hover{background:var(--blue-100)}
+.sim.is-on{background:var(--blue-600);color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.35)}
+.sim-alt{background:rgba(255,255,255,.14);color:#fff;font-weight:700}
+.sim-alt:hover{background:rgba(255,255,255,.26)}
+.sim-ic{font-size:11px;line-height:1}
+
+/* ---------- board + live feed ---------- */
+.board-split{display:grid;grid-template-columns:1fr;gap:16px}
+/* Grid children default to min-width:auto, so the room grid inside sized
+   itself to its columns' intrinsic width and dragged the page sideways. */
+.board-split>*{min-width:0}
+@media (min-width:1100px){ .board-split{grid-template-columns:minmax(0,1fr) 320px;align-items:start} }
+.feed-box{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:15px;box-shadow:var(--shadow);position:sticky;top:132px;
+}
+/* On a phone the board is one column, so a feed placed after it lands
+   hundreds of pixels below the fold: you press play and every sign that
+   something happened is off-screen. Put it first instead, and cap it so
+   it does not push the rooms away. */
+@media (max-width:1099px){
+  .feed-box{order:-1;position:static;top:auto}
+  .feed{max-height:216px}
+}
+.feed-box h2{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;margin-bottom:12px}
+.live-dot{
+  width:9px;height:9px;border-radius:50%;background:var(--ink-3);flex:none;transition:background .2s;
+}
+.live-dot.on{background:#16a34a;animation:blip 1.6s ease-in-out infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.live-dot.on{animation:none}}
+.feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;
+  max-height:520px;overflow-y:auto}
+.feed li{
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;
+  padding:9px 11px;border-radius:9px;background:var(--bg);border:1px solid var(--line);
+  font-size:13px;line-height:1.45;animation:slidein .28s ease;
+}
+/* grid children default to min-width:auto, which lets a long sentence
+   push past the panel instead of wrapping inside it */
+.feed li > span{min-width:0;overflow-wrap:anywhere}
+@keyframes slidein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.feed li{animation:none}}
+.feed .fi{
+  width:24px;height:24px;border-radius:7px;display:grid;place-items:center;
+  font-size:12px;font-weight:800;flex:none;
+}
+.fi-in{background:var(--st-occ-bg);color:var(--st-occ)}
+.fi-out{background:var(--st-vac-bg);color:var(--st-vac)}
+.fi-clean{background:var(--st-cln-bg);color:var(--st-cln)}
+.fi-money{background:var(--blue-100);color:var(--blue-700)}
+.feed .ft{display:block;font-size:11px;color:var(--ink-3);margin-top:2px;font-variant-numeric:tabular-nums}
+.feed b{font-weight:800}
+.feed .empty-feed{display:block;color:var(--ink-3);font-style:italic;padding:14px 2px;font-size:13px}
+
+/* shown until the room board has rendered */
+.board-loading{
+  padding:26px 4px;color:var(--ink-3);font-size:14px;font-style:italic;
+}
+.sim[disabled]{opacity:.5;cursor:default}
+.sim[disabled]:hover{background:#fff}
+
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="top-brand">
+      <span class="dot" aria-hidden="true"></span>
+      <div>
+        <strong id="topName">Reception Desk</strong>
+        <small id="topDate"></small>
+      </div>
+    </div>
+    <div class="top-act">
+      <button class="mini" id="langBtn" type="button">తెలుగు</button>
+      <button class="mini" id="backupBtn" type="button" data-i="backup">Backup</button>
+      <button class="mini" id="restoreBtn" type="button" data-i="restore">Restore</button>
+      <input type="file" id="restoreFile" accept="application/json" hidden>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab is-on" data-tab="board"    role="tab" data-i="tabBoard">Room board</button>
+    <button class="tab"       data-tab="today"    role="tab" data-i="tabToday">Today</button>
+    <button class="tab"       data-tab="register" role="tab" data-i="tabRegister">Guest register</button>
+    <button class="tab"       data-tab="guests"   role="tab" data-i="tabGuests">Guest database</button>
+    <button class="tab"       data-tab="reports"  role="tab" data-i="tabReports">Reports</button>
+  </nav>
+  <div class="demobar">
+    <span class="demo-tag" data-i="demoTag">DEMO</span>
+    <span class="demo-txt" data-i="demoTxt">Sample lodge data. Press play to watch a day at the desk run by itself.</span>
+    <div class="demo-act">
+      <button class="sim" id="simBtn" type="button" disabled><span class="sim-ic" aria-hidden="true">&#9654;</span><span id="simLabel" data-i="simStart">Run simulation</span></button>
+      <button class="sim sim-alt" id="simSpeed" type="button">1&times;</button>
+      <button class="sim sim-alt" id="resetBtn" type="button" data-i="resetDemo">Reset demo</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= ROOM BOARD ================= -->
+<section class="panel is-on" id="p-board" role="tabpanel">
+  <div class="bar">
+    <div class="legend">
+      <span><i class="sw sw-vac"></i><b data-i="lgVacant">Vacant</b> <em id="cVac">0</em></span>
+      <span><i class="sw sw-occ"></i><b data-i="lgOccupied">Occupied</b> <em id="cOcc">0</em></span>
+      <span><i class="sw sw-due"></i><b data-i="lgDue">Due out</b> <em id="cDue">0</em></span>
+      <span><i class="sw sw-cln"></i><b data-i="lgClean">Cleaning</b> <em id="cCln">0</em></span>
+      <span><i class="sw sw-blk"></i><b data-i="lgBlocked">Blocked</b> <em id="cBlk">0</em></span>
+    </div>
+    <div class="occ-pill"><b id="occPct">0%</b> <span data-i="occupied">occupied</span></div>
+  </div>
+  <div class="board-split">
+    <div class="floors" id="floors"><p class="board-loading" data-i="loadingRooms">Loading rooms…</p></div>
+    <aside class="feed-box">
+      <h2><span class="live-dot" id="liveDot" aria-hidden="true"></span><span data-i="hFeed">Live activity</span></h2>
+      <ol class="feed" id="feed"></ol>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= TODAY ================= -->
+<section class="panel" id="p-today" role="tabpanel">
+  <div class="kpis" id="kpis"></div>
+  <div class="two">
+    <div class="box">
+      <h2 data-i="hInHouse">In-house guests</h2>
+      <div class="tblwrap"><table class="tbl" id="inhouseTbl"></table></div>
+    </div>
+    <div class="box">
+      <h2 data-i="hDueOut">Checking out today</h2>
+      <div class="tblwrap"><table class="tbl" id="dueoutTbl"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REGISTER ================= -->
+<section class="panel" id="p-register" role="tabpanel">
+  <div class="bar">
+    <div class="filters">
+      <label><span data-i="from">From</span><input type="date" id="regFrom"></label>
+      <label><span data-i="to">To</span><input type="date" id="regTo"></label>
+      <input type="search" id="regSearch" placeholder="Name, phone, room, ID…">
+    </div>
+    <button class="mini mini-go" id="regCsv" type="button" data-i="exportCsv">Export CSV</button>
+  </div>
+  <p class="hint" data-i="regHint">This is your guest register. Keep it accurate — you are required to record every guest's name, address and photo ID. Export a copy whenever the police or an inspection asks for it.</p>
+  <div class="tblwrap"><table class="tbl" id="regTbl"></table></div>
+</section>
+
+<!-- ================= GUEST DATABASE ================= -->
+<section class="panel" id="p-guests" role="tabpanel">
+  <div class="bar">
+    <div class="filters">
+      <input type="search" id="gSearch" placeholder="Search name or phone…">
+      <select id="gSeg"></select>
+    </div>
+    <button class="mini mini-go" id="gCsv" type="button" data-i="exportCsv">Export CSV</button>
+  </div>
+  <p class="hint" data-i="gHint">Every guest who stays becomes a contact. Before Urs, exam weekends and festival dates, message the relevant segment on WhatsApp — repeat guests are the cheapest bookings you will ever get.</p>
+  <div class="tblwrap"><table class="tbl" id="gTbl"></table></div>
+</section>
+
+<!-- ================= REPORTS ================= -->
+<section class="panel" id="p-reports" role="tabpanel">
+  <div class="bar">
+    <div class="filters">
+      <label><span data-i="period">Period</span>
+        <select id="repDays">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div class="kpis" id="repKpis"></div>
+  <div class="box">
+    <h2 data-i="hDaily">Daily occupancy and revenue</h2>
+    <div class="chart" id="chart"></div>
+  </div>
+  <div class="two">
+    <div class="box">
+      <h2 data-i="hSeg">Where your business comes from</h2>
+      <div class="tblwrap"><table class="tbl" id="segTbl"></table></div>
+    </div>
+    <div class="box">
+      <h2 data-i="hRoomPerf">Revenue by room type</h2>
+      <div class="tblwrap"><table class="tbl" id="typeTbl"></table></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ================= CHECK-IN DIALOG ================= -->
+<div class="dlg-wrap" id="ciWrap" hidden>
+ <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="ciTitle">
+  <form id="ciForm">
+    <header class="dlg-hd">
+      <h2 id="ciTitle"><span data-i="checkInTo">Check in to room</span> <b id="ciRoom"></b></h2>
+      <button class="x" type="button" data-close="ciWrap" aria-label="Close">&times;</button>
+    </header>
+    <div class="dlg-bd">
+      <div class="f2">
+        <label class="f"><span data-i="fName">Guest name</span><input name="name" required autocomplete="off"></label>
+        <label class="f"><span data-i="fPhone">Mobile</span><input name="phone" inputmode="numeric" required autocomplete="off"></label>
+      </div>
+      <div class="f2">
+        <label class="f"><span data-i="fIdType">ID type</span>
+          <select name="idType">
+            <option>Aadhaar</option><option>Voter ID</option><option>Driving Licence</option>
+            <option>PAN</option><option>Passport</option><option>Other</option>
+          </select>
+        </label>
+        <label class="f"><span data-i="fIdNo">ID number</span><input name="idNo" required autocomplete="off"></label>
+      </div>
+      <label class="f"><span data-i="fAddr">Address (town / district)</span><input name="address" autocomplete="off"></label>
+      <div class="f2">
+        <label class="f"><span data-i="fSeg">Why are they here?</span><select name="segment" id="ciSeg"></select></label>
+        <label class="f"><span data-i="fPax">Number of guests</span><input name="pax" type="number" min="1" max="8" value="1"></label>
+      </div>
+      <div class="f2">
+        <label class="f"><span data-i="fNights">Nights</span><input name="nights" type="number" min="1" max="120" value="1" id="ciNights"></label>
+        <label class="f"><span data-i="fRate">Rate per night (₹)</span><input name="rate" type="number" min="0" step="1" id="ciRate"></label>
+      </div>
+      <div class="f2">
+        <label class="f"><span data-i="fAdvance">Advance paid (₹)</span><input name="advance" type="number" min="0" step="1" value="0"></label>
+        <label class="f"><span data-i="fPay">Payment mode</span>
+          <select name="payMode"><option>Cash</option><option>UPI</option><option>Card</option><option>OTA / prepaid</option></select>
+        </label>
+      </div>
+      <label class="f"><span data-i="fSource">Booking came from</span><select name="source" id="ciSource"></select></label>
+      <label class="f"><span data-i="fNote">Note</span><input name="note" autocomplete="off"></label>
+      <output class="calc" id="ciCalc"></output>
+    </div>
+    <footer class="dlg-ft">
+      <button class="mini" type="button" data-close="ciWrap" data-i="cancel">Cancel</button>
+      <button class="mini mini-go" type="button" id="ciConfirm" data-i="doCheckIn">Check in</button>
+    </footer>
+  </form>
+ </div>
+</div>
+
+<!-- ================= ROOM ACTION DIALOG ================= -->
+<div class="dlg-wrap" id="roomWrap" hidden>
+ <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="rdTitle">
+  <div id="roomForm">
+    <header class="dlg-hd">
+      <h2 id="rdTitle"><span data-i="room">Room</span> <b id="rdRoom"></b></h2>
+      <button class="x" type="button" data-close="roomWrap" aria-label="Close">&times;</button>
+    </header>
+    <div class="dlg-bd" id="rdBody"></div>
+    <footer class="dlg-ft" id="rdFoot"></footer>
+  </div>
+ </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   LODGE CONFIG — the ONLY file you edit to make this site real.
+   Every price, phone number, photo and line of text comes from
+   here. Change a value, reload the page, it is live.
+
+   NOTE: the values below are SAMPLE data for a demo lodge.
+   Replace them with the real ones before going live.
+   ============================================================ */
+
+const LODGE = {
+
+  /* ---------- 1. IDENTITY ---------- */
+  name:        "Krishna Grand",
+  nameTe:      "కృష్ణా గ్రాండ్",
+  tagline:     "One room type, one price. AC room at \u20B91,199 a night, with a full 24-hour checkout.",
+  taglineTe:   "ఒకే రకం గది, ఒకే ధర. ఏసీ గది \u20B91,199, పూర్తి 24 గంటల చెక్అవుట్.",
+  established: 2026,
+  totalRooms:  16,
+
+  /* Set this to true once real photographs are in site/img/.
+     While it is false the site hides the gallery and shows a
+     clean "photograph coming" panel instead of fake placeholder
+     images, so an unfinished lodge looks deliberate rather than
+     broken. See docs/LAUNCH-CHECKLIST.md for the shot list.    */
+  photosReady: false,
+
+  /* ---------- 2. CONTACT ----------
+     phone: what the "Call" button dials. Keep the +91.
+     whatsapp: digits only, no +, no spaces. This is what
+     builds the wa.me/ link.                                   */
+  phone:        "+919999900000",
+  phoneDisplay: "+91 99999 00000",
+  phone2:       "+919999900001",
+  whatsapp:     "919999900000",
+  email:        "stay@krishnagrand.example",
+
+  /* ---------- 3. ADDRESS ----------
+     The lodge under construction is the blue building that also
+     houses the advocate's office (Prasanna Associates), on the
+     corner at Chinna Chauku.
+
+     IMPORTANT: the Google Maps link we started from points at
+     the "Care dental" listing, which is about 50 m away from
+     the actual building. Do NOT reuse that pin. Create a fresh
+     Google Business Profile pin standing at the lodge gate.     */
+  address: {
+    line1:   "Near Prasanna Associates, MDR379",  // <-- add the door number once allotted
+    locality:"Y.S. Nagar, Chinna Chauku",
+    line2:   "Y.S. Nagar, Chinna Chauku",
+    city:    "Kadapa",
+    district:"YSR Kadapa",
+    state:   "Andhra Pradesh",
+    pincode: "516001",
+    country: "IN"
+  },
+
+  /* !!! NOT YET VERIFIED !!!
+     Placeholder coordinates for central Kadapa, NOT the plot.
+     The nearby Care dental pin is ~50 m off, so it is not a
+     substitute. A wrong pin sends guests to the wrong gate.
+     To fix it in 30 seconds:
+       1. Stand at the lodge gate with Google Maps open.
+       2. Long-press that exact spot; the lat,long appears on top.
+       3. Paste both numbers here and set verified to true.      */
+  geo: { lat: 14.4673, lng: 78.8242, verified: false },
+
+  /* Address-based links, safe to use before coordinates exist. */
+  mapsLink:  "https://www.google.com/maps/search/?api=1&query=Y.S.Nagar%2C+Chinna+Chauku%2C+Kadapa%2C+Andhra+Pradesh+516001",
+  mapsEmbed: "https://maps.google.com/maps?q=Y.S.Nagar%2C%20Chinna%20Chauku%2C%20Kadapa%2C%20Andhra%20Pradesh%20516001&z=16&output=embed",
+
+  /* ---------- 4. UPI (for advance payment) ---------- */
+  upi: { id: "krishnagrand@upi", name: "Krishna Grand" },
+
+  /* ---------- 5. ROOMS & TARIFF ----------
+     Krishna Grand runs ONE room category at ONE price. That is
+     a genuine selling point in a town where every lodge haggles,
+     so the site says so plainly instead of hiding it.
+
+     CONFIRM: occupancy and bed configuration below are assumed.
+     Correct them before launch.                                */
+  rooms: [
+    {
+      id: "standard",
+      name: "AC Room",
+      nameTe: "ఏసీ గది",
+      price: 1199,
+      occupancy: "Up to 2 guests",   // <-- CONFIRM
+      beds: "1 double bed",          // <-- CONFIRM
+      img: "img/room-standard.svg",
+      features: ["Air conditioned", "Attached bathroom", "24hr hot water", "LED TV", "Free WiFi"],
+      note: "All 16 rooms are identical. No room-grade upselling, no rate haggling \u2014 the price on this page is the price at the desk."
+    }
+  ],
+
+  /* ---------- 6. LONG-STAY RATES ----------
+     EMPTY ON PURPOSE: pricing is currently flat at \u20B91,199, so
+     the long-stay panel is hidden.
+
+     Worth reconsidering before opening. Hospital attendants at
+     RIMS and site engineers stay 1-4 weeks and choose on weekly
+     and monthly rates, and almost no lodge in Kadapa advertises
+     one. To switch the panel back on, add entries here, e.g.:
+
+       { label: "Per week",  price: 7000, for: "Hospital attendants" },
+       { label: "Per month", price: 24000, for: "Site engineers, corporate" }
+
+     Anything in this list appears on the site automatically.    */
+  longStay: [],
+
+  /* ---------- 7. AMENITIES ----------
+     Order matters. Put the things budget guests actually
+     complain about in reviews at the top.                     */
+  amenities: [
+    { icon: "hot-water", label: "24hr hot water",    te: "24 గంటలు వేడి నీరు" },
+    { icon: "clock",     label: "24-hour checkout",  te: "24 గంటల చెక్అవుట్" },
+    { icon: "coffee",    label: "Free coffee \u00B7 2 per guest", te: "ఉచిత కాఫీ \u00B7 ఒక్కరికి 2" },
+    { icon: "wifi",      label: "Free WiFi",         te: "ఉచిత వైఫై" },
+    { icon: "parking",   label: "Free parking",      te: "ఉచిత పార్కింగ్" },
+    { icon: "power",     label: "Power backup",      te: "పవర్ బ్యాకప్" },
+    { icon: "cctv",      label: "CCTV security",     te: "సీసీటీవీ భద్రత" },
+    { icon: "lift",      label: "Lift",              te: "లిఫ్ట్" },
+    { icon: "luggage",   label: "Luggage room",      te: "లగేజ్ రూమ్" },
+    { icon: "room-service", label: "Room service",   te: "రూమ్ సర్వీస్" },
+    { icon: "laundry",   label: "Laundry",           te: "లాండ్రీ" },
+    { icon: "doctor",    label: "Doctor on call",    te: "డాక్టర్ ఆన్ కాల్" }
+  ],
+
+  /* ---------- 8. DISTANCES ----------
+     In a tier-3 town people choose a lodge by what it is NEAR,
+     not by what it looks like. This block does more work than
+     the photo gallery. Measure these honestly.                */
+  distances: [
+    /* !!! EVERY NUMBER BELOW IS AN ESTIMATE, NOT A MEASUREMENT !!!
+       Chinna Chauku sits in the middle of town, so these are
+       plausible, but publishing a wrong distance is the fastest
+       way to get a one-star review from someone who booked
+       believing the station was a 3-minute walk.
+
+       Fix them properly: open Google Maps, Directions, from the
+       lodge to each place, by car, and copy the real km and
+       minutes. Then set verified:true. It takes ten minutes and
+       it is the single most-read block on the whole site.      */
+    { place: "Kadapa RTC Bus Stand",    placeTe: "కడప ఆర్టీసీ బస్ స్టాండ్", km: 2.0,  mins: 8,   verified: false },
+    { place: "Kadapa Railway Station",  placeTe: "కడప రైల్వే స్టేషన్",     km: 3.0,  mins: 12,  verified: false },
+    { place: "Ameen Peer Dargah",       placeTe: "అమీన్ పీర్ దర్గా",       km: 3.5,  mins: 13,  verified: false },
+    { place: "District Collectorate",   placeTe: "జిల్లా కలెక్టరేట్",      km: 4.0,  mins: 15,  verified: false },
+    { place: "RIMS Hospital",           placeTe: "రిమ్స్ ఆసుపత్రి",        km: 9.0,  mins: 22,  verified: false },
+    { place: "Kadapa Airport",          placeTe: "కడప విమానాశ్రయం",        km: 15.0, mins: 30,  verified: false },
+    { place: "Gandi Kshetram",          placeTe: "గండి క్షేత్రం",          km: 22.0, mins: 40,  verified: false },
+    { place: "Tirupati",                placeTe: "తిరుపతి",                km: 130,  mins: 180, verified: false }
+  ],
+
+  /* ---------- 9. OFFERS ----------
+     One offer per demand segment. These are the segments a
+     Kadapa lodge can actually win.                            */
+  offers: [
+    {
+      title: "Hospital attendant rate",
+      titleTe: "ఆసుపత్రి సహాయకుల రేటు",
+      body: "Staying with a patient at RIMS or a private hospital? Weekly and monthly rooms from ₹4,200/week. Free luggage storage, hot water any hour, and a flexible checkout so you can match hospital timings.",
+      cta: "Ask for hospital rate"
+    },
+    {
+      title: "Pilgrim & family stay",
+      titleTe: "భక్తులు & కుటుంబాలు",
+      body: "2 km from Ameen Peer Dargah and on the road to Tirupati. Early check-in for overnight trains, safe parking for your own vehicle, and complimentary coffee at the desk before an early darshan.",
+      cta: "Book a pilgrim room"
+    },
+    {
+      title: "Corporate & contractor monthly",
+      titleTe: "కార్పొరేట్ & కాంట్రాక్టర్",
+      body: "Monthly rooms for site engineers, auditors and government deputation staff. GST invoice provided, single monthly bill for multiple rooms, laundry included.",
+      cta: "Get a corporate quote"
+    },
+    {
+      title: "Exam-day block booking",
+      titleTe: "పరీక్ష రోజు బుకింగ్",
+      body: "APPSC, TET, bank and railway exam candidates — reserve early, we hold rooms for exam weekends. Wake-up call, coffee before you leave, and a drop to the exam centre arranged on request.",
+      cta: "Reserve for exam day"
+    }
+  ],
+
+  /* ---------- 10. GALLERY ---------- */
+  gallery: [
+    { img: "img/gallery-exterior.svg",  caption: "Front entrance" },
+    { img: "img/gallery-reception.svg", caption: "Reception, open 24 hours" },
+    { img: "img/gallery-bathroom.svg",  caption: "Attached bathroom, hot water 24hr" },
+    { img: "img/gallery-coffee.svg",    caption: "Complimentary coffee" },
+    { img: "img/gallery-parking.svg",   caption: "Parking" },
+    { img: "img/gallery-corridor.svg",  caption: "Corridor and lift" }
+  ],
+
+  /* ---------- 11. REVIEWS ----------
+     SAMPLE text. Never invent reviews on a live site: copy the
+     real ones from your Google Business Profile, or delete
+     this section until you have some.                         */
+  reviews: [
+    { name: "Ravi Kumar",    stars: 5, text: "Stayed 6 nights while my father was admitted at RIMS. They gave a weekly rate without me asking and kept hot water running late at night. Very helpful staff.", source: "Google" },
+    { name: "S. Fathima",    stars: 5, text: "Close to the dargah, clean rooms, and the family room was big enough for all of us. Checkout time was flexible for our evening train.", source: "Google" },
+    { name: "Naveen Reddy",  stars: 4, text: "Came for a site visit. WiFi actually worked, which is rare. Parking inside the compound is a big plus.", source: "MakeMyTrip" }
+  ],
+  ratingValue: 4.5,
+  ratingCount: 128,
+
+  /* ---------- 12. POLICIES ---------- */
+  policies: [
+    "Checkout is 24 hours from your check-in time — not a fixed 11 AM.",
+    "Valid government photo ID required for every adult guest at check-in.",
+    "Couples welcome with valid ID. Local IDs accepted.",
+    "Children below 8 years stay free using existing bedding.",
+    "Extra bed ₹300 per night.",
+    "Complimentary coffee, two cups per guest. Outside food allowed in rooms.",
+    "Free cancellation up to 6 hours before check-in on direct bookings."
+  ],
+
+  /* ---------- 13. SITE SETTINGS ---------- */
+  ota: {
+    // Leave a URL empty ("") to hide that badge.
+    makemytrip: "",
+    goibibo: "",
+    booking: ""
+  },
+  /* Set above 0 to advertise a direct-booking discount against the
+     OTAs. Held at 0 because pricing is currently flat at \u20B91,199. */
+  directDiscount: 0
+};
+
+/* Expose on window. A top-level `const` in a classic script does NOT
+   become a window property, and pms/index.html loads this file from a
+   different folder, so it needs the explicit handle. */
+window.LODGE = LODGE;
+
+</script>
+<script>
+/* ===========================================================
+   pms.js — reception desk system
+   Runs entirely in the browser. Data lives in localStorage on
+   THIS device, so: take the Backup file regularly. There is no
+   server and nothing is sent anywhere.
+   =========================================================== */
+(function () {
+  'use strict';
+
+  var KEY = 'lodge.pms.v1';
+  var C = window.LODGE;
+
+  /* Names are drawn as matched pairs rather than mixing two random pools,
+     which otherwise produces combinations no real guest has. Shared by the
+     seed and the simulator. */
+  var DEMO_NAMES = [
+    { first: ['Ravi','Suresh','Naveen','Mahesh','Kiran','Rajesh','Bhaskar','Venkat','Srinivas','Prasad'],
+      last:  ['Kumar','Reddy','Naidu','Rao','Chowdary','Yadav','Babu'] },
+    { first: ['Lakshmi','Anitha','Sridevi','Padma','Sunitha','Bhavani','Swapna','Vijaya'],
+      last:  ['Reddy','Devi','Naidu','Rao','Kumari','Chowdary'] },
+    { first: ['Imran','Arif','Rafi','Khaleel','Mastan','Nazeer'],
+      last:  ['Shaik','Khan','Basha','Ahmed'] },
+    { first: ['Fathima','Yasmin','Nasreen','Shabana','Ayesha'],
+      last:  ['Begum','Shaik','Khatoon'] }
+  ];
+  var DEMO_TOWNS = ['Proddatur','Pulivendula','Rajampet','Jammalamadugu','Mydukur','Badvel','Kurnool',
+                    'Nandyal','Tirupati','Hyderabad','Bengaluru','Chennai','Anantapur','Nellore'];
+
+  var SEGMENTS = [
+    ['pilgrim',   'Pilgrim / darshan',        'యాత్రికులు'],
+    ['medical',   'Hospital / patient care',  'ఆసుపత్రి'],
+    ['govt',      'Government / official',    'ప్రభుత్వ పని'],
+    ['corporate', 'Corporate / contractor',   'కార్పొరేట్'],
+    ['exam',      'Exam candidate',           'పరీక్ష'],
+    ['wedding',   'Wedding / function',       'పెళ్లి / ఫంక్షన్'],
+    ['family',    'Tourist / family',         'కుటుంబం'],
+    ['transit',   'Transit / walk-in',        'ప్రయాణం']
+  ];
+
+  var SOURCES = [
+    'Walk-in', 'Phone call', 'WhatsApp', 'Google Maps', 'Website',
+    'MakeMyTrip', 'Goibibo', 'Booking.com',
+    'Auto / taxi driver', 'Hospital referral', 'Travel agent', 'Repeat guest'
+  ];
+
+  /* ---------- i18n ---------- */
+  var I18N = {
+    en: {
+      tabBoard:'Room board', tabToday:'Today', tabRegister:'Guest register',
+      tabGuests:'Guest database', tabReports:'Reports',
+      backup:'Backup', restore:'Restore',
+      lgVacant:'Vacant', lgOccupied:'Occupied', lgDue:'Due out', lgClean:'Cleaning', lgBlocked:'Blocked',
+      occupied:'occupied', from:'From', to:'To', period:'Period', exportCsv:'Export CSV',
+      hInHouse:'In-house guests', hDueOut:'Checking out today',
+      hDaily:'Daily occupancy and revenue', hSeg:'Where your business comes from', hRoomPerf:'Revenue by room type',
+      regHint:'This is your guest register. Keep it accurate — you are required to record every guest’s name, address and photo ID. Export a copy whenever the police or an inspection asks for it.',
+      gHint:'Every guest who stays becomes a contact. Before Urs, exam weekends and festival dates, message the relevant segment on WhatsApp — repeat guests are the cheapest bookings you will ever get.',
+      checkInTo:'Check in to room', room:'Room',
+      fName:'Guest name', fPhone:'Mobile', fIdType:'ID type', fIdNo:'ID number',
+      fAddr:'Address (town / district)', fSeg:'Why are they here?', fPax:'Number of guests',
+      fNights:'Nights', fRate:'Rate per night (₹)', fAdvance:'Advance paid (₹)',
+      fPay:'Payment mode', fSource:'Booking came from', fNote:'Note',
+      cancel:'Cancel', doCheckIn:'Check in', doCheckOut:'Check out',
+      markClean:'Mark cleaning', markReady:'Mark ready', block:'Block room', unblock:'Unblock',
+      extend:'Add a night',
+      // table headers
+      thRoom:'Room', thGuest:'Guest', thPhone:'Phone', thSeg:'Purpose', thIn:'Check-in',
+      thOut:'Check-out', thNights:'Nights', thRate:'Rate', thTotal:'Total', thBal:'Balance',
+      thSource:'Source', thId:'ID', thAddr:'Address', thStays:'Stays', thLast:'Last stay',
+      thType:'Type', thShare:'Share', thRev:'Revenue', thGuests:'Guests',
+      thPax:'Pax', thPaid:'Paid', thAction:'',
+      // KPIs
+      kOcc:'Occupancy', kAdr:'ADR', kRevpar:'RevPAR', kRev:'Revenue today',
+      kInHouse:'Guests in house', kArrivals:'Arrivals today', kDeps:'Departures today', kVacant:'Rooms vacant',
+      kRevTotal:'Total revenue', kNights:'Room nights sold', kAvgStay:'Average stay',
+      kTopSeg:'Biggest segment',
+      // misc
+      noneYet:'Nothing here yet', due:'Due out today', nights:'nights', night:'night',
+      msgIn:'Checked in', msgOut:'Checked out', msgSaved:'Saved', msgBackup:'Backup downloaded',
+      msgRestored:'Data restored', msgBadFile:'That file could not be read',
+      confirmOut:'Check out this guest?', balanceDue:'Balance to collect',
+      allSegments:'All purposes', seeded:'Sample data loaded so you can see how it works',
+      demoTag:'DEMO', demoTxt:'Sample lodge data. Press play to watch a day at the desk run by itself.',
+      simStart:'Run simulation', simStop:'Pause simulation', resetDemo:'Reset demo',
+      hFeed:'Live activity', loadingRooms:'Loading rooms\u2026',
+      simIdle:'Nothing left to do \u2014 every room is settled. Press Reset demo to start again.',
+      feedEmpty:'Press "Run simulation" to see arrivals, departures and housekeeping happen live.',
+      evIn:'checked in to room', evOut:'checked out of room', evClean:'made ready',
+      evPaid:'paid balance for room', evExtend:'extended their stay in room',
+      forNights:'for', nightsWord:'nights', resetDone:'Demo data rebuilt'
+    },
+    te: {
+      tabBoard:'గదుల బోర్డు', tabToday:'ఈ రోజు', tabRegister:'అతిథుల రిజిస్టర్',
+      tabGuests:'అతిథుల జాబితా', tabReports:'రిపోర్టులు',
+      backup:'బ్యాకప్', restore:'రీస్టోర్',
+      lgVacant:'ఖాళీ', lgOccupied:'నిండినవి', lgDue:'ఈ రోజు ఖాళీ', lgClean:'శుభ్రం చేయాలి', lgBlocked:'బ్లాక్',
+      occupied:'నిండినవి', from:'నుండి', to:'వరకు', period:'కాలం', exportCsv:'CSV డౌన్‌లోడ్',
+      hInHouse:'ప్రస్తుతం ఉన్న అతిథులు', hDueOut:'ఈ రోజు వెళ్ళేవారు',
+      hDaily:'రోజువారీ ఆక్యుపెన్సీ & ఆదాయం', hSeg:'వ్యాపారం ఎక్కడి నుండి వస్తోంది', hRoomPerf:'గది రకం వారీగా ఆదాయం',
+      regHint:'ఇది మీ అతిథుల రిజిస్టర్. ప్రతి అతిథి పేరు, చిరునామా, ఫోటో ఐడీ నమోదు చేయడం తప్పనిసరి. పోలీసులు లేదా తనిఖీ అడిగినప్పుడు కాపీ డౌన్‌లోడ్ చేయండి.',
+      gHint:'బస చేసిన ప్రతి అతిథి ఒక కాంటాక్ట్. ఉర్స్, పరీక్షల వారాంతాలు, పండుగల ముందు వాట్సాప్‌లో సందేశం పంపండి — పాత అతిథులే అత్యంత చౌకైన బుకింగ్.',
+      checkInTo:'గదిలో చెక్-ఇన్', room:'గది',
+      fName:'అతిథి పేరు', fPhone:'మొబైల్', fIdType:'ఐడీ రకం', fIdNo:'ఐడీ నంబర్',
+      fAddr:'చిరునామా (ఊరు / జిల్లా)', fSeg:'ఎందుకు వచ్చారు?', fPax:'ఎంతమంది',
+      fNights:'రాత్రులు', fRate:'ఒక రాత్రి ధర (₹)', fAdvance:'అడ్వాన్స్ (₹)',
+      fPay:'చెల్లింపు విధానం', fSource:'బుకింగ్ ఎక్కడి నుండి', fNote:'గమనిక',
+      cancel:'రద్దు', doCheckIn:'చెక్-ఇన్', doCheckOut:'చెక్-అవుట్',
+      markClean:'శుభ్రం చేయాలి', markReady:'సిద్ధం', block:'బ్లాక్ చేయి', unblock:'అన్‌బ్లాక్',
+      extend:'మరో రాత్రి',
+      thRoom:'గది', thGuest:'అతిథి', thPhone:'ఫోన్', thSeg:'కారణం', thIn:'చెక్-ఇన్',
+      thOut:'చెక్-అవుట్', thNights:'రాత్రులు', thRate:'ధర', thTotal:'మొత్తం', thBal:'బ్యాలెన్స్',
+      thSource:'మూలం', thId:'ఐడీ', thAddr:'చిరునామా', thStays:'బసలు', thLast:'చివరి బస',
+      thType:'రకం', thShare:'వాటా', thRev:'ఆదాయం', thGuests:'అతిథులు',
+      thPax:'మంది', thPaid:'చెల్లించారు', thAction:'',
+      kOcc:'ఆక్యుపెన్సీ', kAdr:'సగటు ధర', kRevpar:'RevPAR', kRev:'ఈ రోజు ఆదాయం',
+      kInHouse:'ఉన్న అతిథులు', kArrivals:'ఈ రోజు వచ్చినవి', kDeps:'ఈ రోజు వెళ్ళినవి', kVacant:'ఖాళీ గదులు',
+      kRevTotal:'మొత్తం ఆదాయం', kNights:'అమ్మిన రూమ్ నైట్స్', kAvgStay:'సగటు బస',
+      kTopSeg:'అతిపెద్ద విభాగం',
+      noneYet:'ఇంకా ఏమీ లేదు', due:'ఈ రోజు వెళ్ళాలి', nights:'రాత్రులు', night:'రాత్రి',
+      msgIn:'చెక్-ఇన్ అయ్యింది', msgOut:'చెక్-అవుట్ అయ్యింది', msgSaved:'సేవ్ అయ్యింది',
+      msgBackup:'బ్యాకప్ డౌన్‌లోడ్ అయ్యింది', msgRestored:'డేటా రీస్టోర్ అయ్యింది',
+      msgBadFile:'ఆ ఫైల్ చదవలేకపోయాం',
+      confirmOut:'ఈ అతిథిని చెక్-అవుట్ చేయాలా?', balanceDue:'వసూలు చేయవలసినది',
+      allSegments:'అన్ని కారణాలు', seeded:'ఎలా పనిచేస్తుందో చూడటానికి నమూనా డేటా లోడ్ అయ్యింది',
+      demoTag:'డెమో', demoTxt:'నమూనా డేటా. ప్లే నొక్కితే రిసెప్షన్‌లో ఒక రోజు ఎలా గడుస్తుందో చూడవచ్చు.',
+      simStart:'సిమ్యులేషన్ ప్రారంభించు', simStop:'ఆపు', resetDemo:'డెమో రీసెట్',
+      hFeed:'లైవ్ కార్యకలాపాలు', loadingRooms:'గదులు లోడ్ అవుతున్నాయి\u2026',
+      simIdle:'ఇప్పుడు చేయడానికి ఏమీ లేదు. మళ్ళీ చూడాలంటే "డెమో రీసెట్" నొక్కండి.',
+      feedEmpty:'"సిమ్యులేషన్ ప్రారంభించు" నొక్కితే రాకపోకలు, హౌస్‌కీపింగ్ ప్రత్యక్షంగా కనిపిస్తాయి.',
+      evIn:'చెక్-ఇన్ అయ్యారు, గది', evOut:'చెక్-అవుట్ అయ్యారు, గది', evClean:'సిద్ధం చేయబడింది',
+      evPaid:'బ్యాలెన్స్ చెల్లించారు, గది', evExtend:'బస పొడిగించారు, గది',
+      forNights:'', nightsWord:'రాత్రులు', resetDone:'డెమో డేటా మళ్ళీ తయారైంది'
+    }
+  };
+
+  var lang = 'en';
+  function t(k) { return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
+  function segLabel(id) {
+    var s = SEGMENTS.filter(function (x) { return x[0] === id; })[0];
+    return s ? (lang === 'te' ? s[2] : s[1]) : id;
+  }
+
+  /* ---------- tiny helpers ---------- */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function inr(n) { return '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN'); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function iso(d) { return new Date(d).toISOString().slice(0, 10); }
+  function today() { return iso(new Date()); }
+  function addDays(dstr, n) {
+    var d = new Date(dstr + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return iso(d);
+  }
+  function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+  function fmtDate(dstr) {
+    if (!dstr) return '—';
+    var d = new Date(dstr + 'T00:00:00');
+    return d.toLocaleDateString(lang === 'te' ? 'te-IN' : 'en-IN', { day: '2-digit', month: 'short' });
+  }
+  function toast(msg) {
+    var el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('on');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove('on'); }, 2600);
+  }
+
+  /* =========================================================
+     STORE
+     ========================================================= */
+  var DB = { rooms: [], stays: [], guests: [], seq: 1 };
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(DB)); }
+    catch (e) { toast('Could not save — storage full or blocked'); }
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { DB = JSON.parse(raw); return true; }
+    } catch (e) { /* corrupted or blocked; fall through to a fresh build */ }
+    return false;
+  }
+  function nextId(p) { return p + (DB.seq++); }
+
+  /* Build the room list from the tariff in config.js.
+     Krishna Grand is 16 identical AC rooms over 4 floors, 4 to a
+     floor, numbered 101-104, 201-204 and so on.
+
+     If the real building differs, change PER_FLOOR (and the room
+     count in config.js). Everything else follows from here.     */
+  var PER_FLOOR = 4;
+
+  function buildRooms() {
+    var type = (C.rooms[0] && C.rooms[0].id) || 'standard';
+    var total = C.totalRooms || C.rooms.length;
+    var rooms = [];
+    for (var n = 0; n < total; n++) {
+      var floor = Math.floor(n / PER_FLOOR) + 1;
+      var idx = (n % PER_FLOOR) + 1;
+      rooms.push({
+        no: String(floor * 100 + idx),
+        type: type,
+        floor: floor,
+        state: 'vacant'   // vacant | cleaning | blocked
+      });
+    }
+    return rooms;
+  }
+
+  function roomType(id) {
+    return C.rooms.filter(function (r) { return r.id === id; })[0] || { name: id, price: 0 };
+  }
+
+  /* =========================================================
+     DERIVED STATE
+     ========================================================= */
+  function activeStay(roomNo) {
+    return DB.stays.filter(function (s) { return s.room === roomNo && !s.outAt; })[0] || null;
+  }
+  function dueDate(s) { return addDays(s.inAt, s.nights); }
+  function roomStatus(rm) {
+    var s = activeStay(rm.no);
+    if (s) return dueDate(s) <= today() ? 'due' : 'occ';
+    if (rm.state === 'cleaning') return 'cln';
+    if (rm.state === 'blocked') return 'blk';
+    return 'vac';
+  }
+  function guestOf(s) {
+    return DB.guests.filter(function (g) { return g.id === s.guestId; })[0] || { name: '—', phone: '' };
+  }
+  function stayTotal(s) { return s.rate * s.nights; }
+  function balance(s) { return stayTotal(s) - (s.advance || 0); }
+
+  /* Spread a stay's revenue across the nights it covers, so a
+     7-night stay shows up on 7 days and not as one lump.     */
+  function revenueByDay(fromD, toD) {
+    var map = {};
+    for (var d = fromD; d <= toD; d = addDays(d, 1)) map[d] = { rev: 0, rooms: 0 };
+    DB.stays.forEach(function (s) {
+      for (var i = 0; i < s.nights; i++) {
+        var d = addDays(s.inAt, i);
+        if (map[d]) { map[d].rev += s.rate; map[d].rooms += 1; }
+      }
+    });
+    return map;
+  }
+  function occupiedOn(d) {
+    return DB.stays.filter(function (s) {
+      return s.inAt <= d && addDays(s.inAt, s.nights) > d;
+    }).length;
+  }
+
+  /* =========================================================
+     RENDER — ROOM BOARD
+     ========================================================= */
+  function renderBoard() {
+    var counts = { vac: 0, occ: 0, due: 0, cln: 0, blk: 0 };
+    var floors = {};
+    DB.rooms.forEach(function (rm) {
+      var st = roomStatus(rm);
+      counts[st]++;
+      (floors[rm.floor] = floors[rm.floor] || []).push({ rm: rm, st: st });
+    });
+
+    $('#cVac').textContent = counts.vac;
+    $('#cOcc').textContent = counts.occ;
+    $('#cDue').textContent = counts.due;
+    $('#cCln').textContent = counts.cln;
+    $('#cBlk').textContent = counts.blk;
+    var busy = counts.occ + counts.due;
+    $('#occPct').textContent = DB.rooms.length ? Math.round(busy / DB.rooms.length * 100) + '%' : '0%';
+
+    var labels = { vac: t('lgVacant'), occ: t('lgOccupied'), due: t('due'), cln: t('lgClean'), blk: t('lgBlocked') };
+
+    $('#floors').innerHTML = Object.keys(floors).sort().map(function (f) {
+      var cards = floors[f].map(function (o) {
+        var rm = o.rm, st = o.st, s = activeStay(rm.no), ty = roomType(rm.type);
+        var g = s ? guestOf(s) : null;
+        return '<button class="rm rm-' + st + '" data-room="' + esc(rm.no) + '" type="button">' +
+          '<span class="rm-no">' + esc(rm.no) + '</span>' +
+          '<span class="rm-ty">' + esc(ty.name) + '</span>' +
+          (g ? '<span class="rm-gs">' + esc(g.name) + '</span>' : '') +
+          (s ? '<span class="rm-sub">' + esc(t('thOut')) + ' ' + esc(fmtDate(dueDate(s))) +
+               ' · ' + esc(inr(s.rate)) + '</span>'
+             : '<span class="rm-sub">' + esc(inr(ty.price)) + ' / ' + esc(t('night')) + '</span>') +
+          '<span class="rm-st">' + esc(labels[st]) + '</span>' +
+        '</button>';
+      }).join('');
+      return '<section class="floor"><h2>' + (lang === 'te' ? 'అంతస్తు ' : 'Floor ') + esc(f) +
+             '</h2><div class="rgrid">' + cards + '</div></section>';
+    }).join('');
+
+    $$('#floors .rm').forEach(function (b) {
+      b.addEventListener('click', function () { openRoom(b.getAttribute('data-room')); });
+    });
+  }
+
+  /* =========================================================
+     RENDER — TODAY
+     ========================================================= */
+  function renderToday() {
+    var d = today();
+    var occ = occupiedOn(d);
+    var total = DB.rooms.length || 1;
+    var rev = 0, pax = 0;
+    DB.stays.forEach(function (s) {
+      if (s.inAt <= d && addDays(s.inAt, s.nights) > d) { rev += s.rate; pax += (s.pax || 1); }
+    });
+    var arrivals = DB.stays.filter(function (s) { return s.inAt === d; }).length;
+    var deps = DB.stays.filter(function (s) { return addDays(s.inAt, s.nights) === d; }).length;
+
+    $('#kpis').innerHTML = [
+      kpi(Math.round(occ / total * 100) + '%', t('kOcc'), occ + ' / ' + total),
+      kpi(inr(occ ? rev / occ : 0), t('kAdr'), lang === 'te' ? 'ఒక గదికి సగటు' : 'Average rate per sold room'),
+      kpi(inr(rev / total), t('kRevpar'), lang === 'te' ? 'ఒక గదికి ఆదాయం' : 'Revenue per available room'),
+      kpi(inr(rev), t('kRev'), lang === 'te' ? 'గదుల ఆదాయం' : 'Room revenue'),
+      kpi(pax, t('kInHouse'), ''),
+      kpi(arrivals, t('kArrivals'), ''),
+      kpi(deps, t('kDeps'), ''),
+      kpi(total - occ, t('kVacant'), '')
+    ].join('');
+
+    var inhouse = DB.stays.filter(function (s) { return !s.outAt; })
+      .sort(function (a, b) { return a.room.localeCompare(b.room); });
+    $('#inhouseTbl').innerHTML = table(
+      [t('thRoom'), t('thGuest'), t('thPhone'), t('thSeg'), t('thOut'), t('thBal')],
+      inhouse.map(function (s) {
+        var g = guestOf(s);
+        return [
+          '<b>' + esc(s.room) + '</b>',
+          esc(g.name),
+          waLink(g.phone),
+          '<span class="pill">' + esc(segLabel(s.segment)) + '</span>',
+          esc(fmtDate(dueDate(s))),
+          { num: true, html: inr(balance(s)) }
+        ];
+      })
+    );
+
+    var dueOut = inhouse.filter(function (s) { return dueDate(s) <= today(); });
+    $('#dueoutTbl').innerHTML = table(
+      [t('thRoom'), t('thGuest'), t('thNights'), t('thTotal'), t('thBal'), ''],
+      dueOut.map(function (s) {
+        var g = guestOf(s);
+        return [
+          '<b>' + esc(s.room) + '</b>',
+          esc(g.name),
+          { num: true, html: String(s.nights) },
+          { num: true, html: inr(stayTotal(s)) },
+          { num: true, html: inr(balance(s)) },
+          '<button class="mini mini-go" data-out="' + esc(s.id) + '" type="button">' + esc(t('doCheckOut')) + '</button>'
+        ];
+      })
+    );
+    $$('#dueoutTbl [data-out]').forEach(function (b) {
+      b.addEventListener('click', function () { checkOut(b.getAttribute('data-out')); });
+    });
+  }
+
+  function kpi(big, label, sub) {
+    // a long word value ("Corporate / contractor") needs smaller type than
+    // a short number value, or it wraps into an unreadable column
+    var small = String(big).length > 9 ? ' kpi-sm' : '';
+    return '<div class="kpi' + small + '"><b>' + esc(big) + '</b><span>' + esc(label) + '</span>' +
+           (sub ? '<small>' + esc(sub) + '</small>' : '') + '</div>';
+  }
+  function waLink(phone) {
+    if (!phone) return '—';
+    var digits = String(phone).replace(/\D/g, '');
+    var num = digits.length === 10 ? '91' + digits : digits;
+    return '<a class="wa" href="https://wa.me/' + esc(num) + '" target="_blank" rel="noopener">💬 ' + esc(phone) + '</a>';
+  }
+  function table(heads, rows) {
+    var th = '<thead><tr>' + heads.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '</tr></thead>';
+    if (!rows.length) {
+      return th + '<tbody><tr><td class="empty" colspan="' + heads.length + '">' + esc(t('noneYet')) + '</td></tr></tbody>';
+    }
+    var tb = rows.map(function (cells) {
+      return '<tr>' + cells.map(function (c) {
+        if (c && typeof c === 'object') return '<td class="' + (c.num ? 'num' : '') + '">' + c.html + '</td>';
+        return '<td>' + c + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    return th + '<tbody>' + tb + '</tbody>';
+  }
+
+  /* =========================================================
+     RENDER — REGISTER
+     ========================================================= */
+  function renderRegister() {
+    var from = $('#regFrom').value, to = $('#regTo').value;
+    var q = $('#regSearch').value.trim().toLowerCase();
+
+    var rows = DB.stays.filter(function (s) {
+      if (from && s.inAt < from) return false;
+      if (to && s.inAt > to) return false;
+      if (!q) return true;
+      var g = guestOf(s);
+      return [g.name, g.phone, g.idNo, g.address, s.room, s.source].join(' ').toLowerCase().indexOf(q) > -1;
+    }).sort(function (a, b) { return b.inAt.localeCompare(a.inAt) || b.id.localeCompare(a.id); });
+
+    $('#regTbl').innerHTML = table(
+      [t('thIn'), t('thRoom'), t('thGuest'), t('thPhone'), t('thId'), t('thAddr'),
+       t('thPax'), t('thNights'), t('thSeg'), t('thSource'), t('thTotal'), t('thPaid')],
+      rows.map(function (s) {
+        var g = guestOf(s);
+        return [
+          esc(fmtDate(s.inAt)), '<b>' + esc(s.room) + '</b>', esc(g.name), esc(g.phone),
+          esc(g.idType + ' ' + g.idNo), esc(g.address || '—'),
+          { num: true, html: String(s.pax || 1) },
+          { num: true, html: String(s.nights) },
+          '<span class="pill">' + esc(segLabel(s.segment)) + '</span>',
+          esc(s.source),
+          { num: true, html: inr(stayTotal(s)) },
+          { num: true, html: inr(s.advance || 0) }
+        ];
+      })
+    );
+    renderRegister._rows = rows;
+  }
+
+  /* =========================================================
+     RENDER — GUEST DATABASE
+     ========================================================= */
+  function renderGuests() {
+    var q = $('#gSearch').value.trim().toLowerCase();
+    var seg = $('#gSeg').value;
+
+    var rows = DB.guests.map(function (g) {
+      var mine = DB.stays.filter(function (s) { return s.guestId === g.id; });
+      var last = mine.map(function (s) { return s.inAt; }).sort().pop();
+      var spend = mine.reduce(function (a, s) { return a + stayTotal(s); }, 0);
+      var segs = {};
+      mine.forEach(function (s) { segs[s.segment] = (segs[s.segment] || 0) + 1; });
+      var topSeg = Object.keys(segs).sort(function (a, b) { return segs[b] - segs[a]; })[0] || g.segment;
+      return { g: g, stays: mine.length, last: last, spend: spend, seg: topSeg };
+    }).filter(function (r) {
+      if (seg && r.seg !== seg) return false;
+      if (!q) return true;
+      return (r.g.name + ' ' + r.g.phone).toLowerCase().indexOf(q) > -1;
+    }).sort(function (a, b) { return (b.last || '').localeCompare(a.last || ''); });
+
+    $('#gTbl').innerHTML = table(
+      [t('thGuest'), t('thPhone'), t('thSeg'), t('thStays'), t('thLast'), t('thTotal'), t('thAddr')],
+      rows.map(function (r) {
+        return [
+          esc(r.g.name) + (r.stays > 1 ? ' <span class="pill">↻ ' + r.stays + '</span>' : ''),
+          waLink(r.g.phone),
+          '<span class="pill">' + esc(segLabel(r.seg)) + '</span>',
+          { num: true, html: String(r.stays) },
+          esc(fmtDate(r.last)),
+          { num: true, html: inr(r.spend) },
+          esc(r.g.address || '—')
+        ];
+      })
+    );
+    renderGuests._rows = rows;
+  }
+
+  /* =========================================================
+     RENDER — REPORTS
+     ========================================================= */
+  function renderReports() {
+    var days = Number($('#repDays').value) || 30;
+    var to = today(), from = addDays(to, -(days - 1));
+    var map = revenueByDay(from, to);
+    var keys = Object.keys(map).sort();
+
+    var totalRev = 0, totalRooms = 0;
+    keys.forEach(function (k) { totalRev += map[k].rev; totalRooms += map[k].rooms; });
+    var capacity = DB.rooms.length * keys.length || 1;
+
+    var inWindow = DB.stays.filter(function (s) { return s.inAt >= from && s.inAt <= to; });
+    var avgStay = inWindow.length
+      ? (inWindow.reduce(function (a, s) { return a + s.nights; }, 0) / inWindow.length)
+      : 0;
+
+    var segTotals = {};
+    inWindow.forEach(function (s) {
+      segTotals[s.segment] = (segTotals[s.segment] || 0) + stayTotal(s);
+    });
+    var topSeg = Object.keys(segTotals).sort(function (a, b) { return segTotals[b] - segTotals[a]; })[0];
+
+    $('#repKpis').innerHTML = [
+      kpi(inr(totalRev), t('kRevTotal'), days + (lang === 'te' ? ' రోజులు' : ' days')),
+      kpi(Math.round(totalRooms / capacity * 100) + '%', t('kOcc'), totalRooms + ' / ' + capacity),
+      kpi(inr(totalRooms ? totalRev / totalRooms : 0), t('kAdr'), ''),
+      kpi(inr(totalRev / capacity), t('kRevpar'), ''),
+      kpi(totalRooms, t('kNights'), ''),
+      kpi(avgStay.toFixed(1), t('kAvgStay'), t('nights')),
+      kpi(topSeg ? segLabel(topSeg) : '—', t('kTopSeg'), topSeg ? inr(segTotals[topSeg]) : '')
+    ].join('');
+
+    var max = Math.max.apply(null, keys.map(function (k) { return map[k].rev; }).concat([1]));
+    $('#chart').innerHTML = keys.map(function (k) {
+      var h = Math.round(map[k].rev / max * 100);
+      var pct = DB.rooms.length ? Math.round(map[k].rooms / DB.rooms.length * 100) : 0;
+      return '<div class="cbar" data-tip="' + esc(fmtDate(k) + ' · ' + inr(map[k].rev) + ' · ' + pct + '%') + '">' +
+             '<i style="height:' + h + '%"></i></div>';
+    }).join('');
+
+    /* by source — this table tells you which marketing channel
+       is actually working, which is the whole point of tracking
+       "Booking came from" at check-in. */
+    var srcTotals = {}, srcCount = {};
+    inWindow.forEach(function (s) {
+      srcTotals[s.source] = (srcTotals[s.source] || 0) + stayTotal(s);
+      srcCount[s.source] = (srcCount[s.source] || 0) + 1;
+    });
+    var srcSum = Object.keys(srcTotals).reduce(function (a, k) { return a + srcTotals[k]; }, 0) || 1;
+    $('#segTbl').innerHTML = table(
+      [t('thSource'), t('thGuests'), t('thRev'), t('thShare')],
+      Object.keys(srcTotals).sort(function (a, b) { return srcTotals[b] - srcTotals[a]; }).map(function (k) {
+        return [esc(k),
+          { num: true, html: String(srcCount[k]) },
+          { num: true, html: inr(srcTotals[k]) },
+          { num: true, html: Math.round(srcTotals[k] / srcSum * 100) + '%' }];
+      })
+    );
+
+    var tyTotals = {}, tyCount = {};
+    inWindow.forEach(function (s) {
+      var rm = DB.rooms.filter(function (r) { return r.no === s.room; })[0];
+      var ty = rm ? roomType(rm.type).name : '—';
+      tyTotals[ty] = (tyTotals[ty] || 0) + stayTotal(s);
+      tyCount[ty] = (tyCount[ty] || 0) + s.nights;
+    });
+    var tySum = Object.keys(tyTotals).reduce(function (a, k) { return a + tyTotals[k]; }, 0) || 1;
+    $('#typeTbl').innerHTML = table(
+      [t('thType'), t('thNights'), t('thRev'), t('thShare')],
+      Object.keys(tyTotals).sort(function (a, b) { return tyTotals[b] - tyTotals[a]; }).map(function (k) {
+        return [esc(k),
+          { num: true, html: String(tyCount[k]) },
+          { num: true, html: inr(tyTotals[k]) },
+          { num: true, html: Math.round(tyTotals[k] / tySum * 100) + '%' }];
+      })
+    );
+  }
+
+  /* =========================================================
+     CHECK IN / OUT
+     ========================================================= */
+  var ciRoomNo = null;
+
+  /* Plain overlays rather than <dialog>. showModal() is unreliable on the
+     older Android WebViews a reception desk is likely to be running. */
+  function openOverlay(id) {
+    var w = document.getElementById(id);
+    if (!w) return;
+    w.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeOverlay(id) {
+    var w = document.getElementById(id);
+    if (!w) return;
+    w.hidden = true;
+    document.body.style.overflow = '';
+  }
+  function closeAllOverlays() { closeOverlay('ciWrap'); closeOverlay('roomWrap'); }
+
+  function openRoom(no) {
+    var rm = DB.rooms.filter(function (r) { return r.no === no; })[0];
+    if (!rm) return;
+    var s = activeStay(no);
+    var ty = roomType(rm.type);
+
+    if (!s) {
+      // vacant-ish: offer check-in plus housekeeping actions
+      $('#rdRoom').textContent = no;
+      $('#rdBody').innerHTML = '<dl class="kv">' +
+        '<dt>' + esc(t('thType')) + '</dt><dd>' + esc(ty.name) + '</dd>' +
+        '<dt>' + esc(t('thRate')) + '</dt><dd>' + esc(inr(ty.price)) + '</dd>' +
+        '<dt>' + esc(t('lgVacant')) + '</dt><dd>' + esc(rm.state) + '</dd></dl>';
+      $('#rdFoot').innerHTML =
+        '<button class="mini" type="button" data-act="state">' +
+          esc(rm.state === 'cleaning' ? t('markReady') : t('markClean')) + '</button>' +
+        '<button class="mini" type="button" data-act="block">' +
+          esc(rm.state === 'blocked' ? t('unblock') : t('block')) + '</button>' +
+        '<button class="mini mini-go" type="button" data-act="in">' + esc(t('doCheckIn')) + '</button>';
+      wireRoomFoot(rm, null);
+    } else {
+      var g = guestOf(s);
+      $('#rdRoom').textContent = no;
+      $('#rdBody').innerHTML = '<dl class="kv">' +
+        '<dt>' + esc(t('thGuest')) + '</dt><dd>' + esc(g.name) + '</dd>' +
+        '<dt>' + esc(t('thPhone')) + '</dt><dd>' + waLink(g.phone) + '</dd>' +
+        '<dt>' + esc(t('thId')) + '</dt><dd>' + esc(g.idType + ' ' + g.idNo) + '</dd>' +
+        '<dt>' + esc(t('thSeg')) + '</dt><dd>' + esc(segLabel(s.segment)) + '</dd>' +
+        '<dt>' + esc(t('thSource')) + '</dt><dd>' + esc(s.source) + '</dd>' +
+        '<dt>' + esc(t('thIn')) + '</dt><dd>' + esc(fmtDate(s.inAt)) + '</dd>' +
+        '<dt>' + esc(t('thOut')) + '</dt><dd>' + esc(fmtDate(dueDate(s))) + '</dd>' +
+        '<dt>' + esc(t('thNights')) + '</dt><dd>' + s.nights + '</dd>' +
+        '<dt>' + esc(t('thRate')) + '</dt><dd>' + esc(inr(s.rate)) + '</dd>' +
+        '<dt>' + esc(t('thTotal')) + '</dt><dd>' + esc(inr(stayTotal(s))) + '</dd>' +
+        '<dt>' + esc(t('thPaid')) + '</dt><dd>' + esc(inr(s.advance || 0)) + '</dd>' +
+        '<dt>' + esc(t('balanceDue')) + '</dt><dd>' + esc(inr(balance(s))) + '</dd>' +
+        (s.note ? '<dt>' + esc(t('fNote')) + '</dt><dd>' + esc(s.note) + '</dd>' : '') +
+        '</dl>';
+      $('#rdFoot').innerHTML =
+        '<button class="mini" type="button" data-act="extend">' + esc(t('extend')) + '</button>' +
+        '<button class="mini mini-go" type="button" data-act="out">' + esc(t('doCheckOut')) + '</button>';
+      wireRoomFoot(rm, s);
+    }
+    openOverlay('roomWrap');
+  }
+
+  function wireRoomFoot(rm, s) {
+    $$('#rdFoot [data-act]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var a = b.getAttribute('data-act');
+        if (a === 'state') { rm.state = rm.state === 'cleaning' ? 'vacant' : 'cleaning'; save(); }
+        if (a === 'block') { rm.state = rm.state === 'blocked' ? 'vacant' : 'blocked'; save(); }
+        if (a === 'extend') { s.nights += 1; save(); toast(t('msgSaved')); }
+        closeOverlay('roomWrap');
+        if (a === 'in') { openCheckIn(rm); return; }
+        if (a === 'out') { checkOut(s.id); return; }
+        refresh();
+      });
+    });
+  }
+
+  function openCheckIn(rm) {
+    ciRoomNo = rm.no;
+    var ty = roomType(rm.type);
+    $('#ciRoom').textContent = rm.no + ' · ' + ty.name;
+    var f = $('#ciForm');
+    f.reset();
+    $('#ciRate').value = ty.price;
+    $('#ciNights').value = 1;
+    updateCalc();
+    openOverlay('ciWrap');
+    setTimeout(function () { try { f.name.focus(); } catch (_) {} }, 40);
+  }
+
+  function updateCalc() {
+    var n = Number($('#ciNights').value) || 1;
+    var r = Number($('#ciRate').value) || 0;
+    var a = Number($('#ciForm').advance.value) || 0;
+    var total = n * r;
+    $('#ciCalc').innerHTML =
+      esc(t('thTotal')) + ': <b>' + inr(total) + '</b> &nbsp; · &nbsp; ' +
+      esc(t('balanceDue')) + ': <b>' + inr(total - a) + '</b><br>' +
+      '<span style="font-weight:500">' + esc(t('thOut')) + ': ' + esc(fmtDate(addDays(today(), n))) + '</span>';
+  }
+
+  function doCheckIn() {
+    var f = $('#ciForm');
+    var phone = f.phone.value.trim();
+
+    // reuse an existing guest record when the phone matches,
+    // so repeat guests build up a history instead of duplicates
+    var g = DB.guests.filter(function (x) { return x.phone === phone; })[0];
+    if (!g) {
+      g = { id: nextId('g'), name: '', phone: phone, idType: '', idNo: '', address: '', segment: '' };
+      DB.guests.push(g);
+    }
+    g.name = f.name.value.trim();
+    g.idType = f.idType.value;
+    g.idNo = f.idNo.value.trim();
+    g.address = f.address.value.trim();
+    g.segment = f.segment.value;
+
+    DB.stays.push({
+      id: nextId('s'),
+      room: ciRoomNo,
+      guestId: g.id,
+      inAt: today(),
+      nights: Math.max(1, Number(f.nights.value) || 1),
+      rate: Math.max(0, Number(f.rate.value) || 0),
+      advance: Math.max(0, Number(f.advance.value) || 0),
+      payMode: f.payMode.value,
+      source: f.source.value,
+      segment: f.segment.value,
+      pax: Math.max(1, Number(f.pax.value) || 1),
+      note: f.note.value.trim(),
+      outAt: null
+    });
+
+    var rm = DB.rooms.filter(function (r) { return r.no === ciRoomNo; })[0];
+    if (rm) rm.state = 'vacant';
+    save();
+    toast(t('msgIn') + ' — ' + t('room') + ' ' + ciRoomNo);
+    refresh();
+  }
+
+  function checkOut(stayId) {
+    var s = DB.stays.filter(function (x) { return x.id === stayId; })[0];
+    if (!s) return;
+    var bal = balance(s);
+    var msg = t('confirmOut') + '\n\n' + t('room') + ' ' + s.room + ' · ' + guestOf(s).name +
+              '\n' + t('thTotal') + ': ' + inr(stayTotal(s)) +
+              '\n' + t('balanceDue') + ': ' + inr(bal);
+    if (!window.confirm(msg)) return;
+    s.outAt = new Date().toISOString();
+    s.advance = stayTotal(s);            // settled at checkout
+    var rm = DB.rooms.filter(function (r) { return r.no === s.room; })[0];
+    if (rm) rm.state = 'cleaning';       // always clean before reselling
+    save();
+    toast(t('msgOut') + ' — ' + t('room') + ' ' + s.room);
+    refresh();
+  }
+
+  /* =========================================================
+     CSV / BACKUP
+     ========================================================= */
+  function csv(rows) {
+    return rows.map(function (r) {
+      return r.map(function (c) {
+        var v = c == null ? '' : String(c);
+        return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }).join(',');
+    }).join('\n');
+  }
+  function download(name, text, type) {
+    var blob = new Blob(['﻿' + text], { type: (type || 'text/csv') + ';charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  function exportRegister() {
+    var rows = [['Check-in','Room','Guest','Phone','ID type','ID number','Address','Guests',
+                 'Nights','Check-out','Purpose','Source','Rate','Total','Paid','Payment','Note']];
+    (renderRegister._rows || []).forEach(function (s) {
+      var g = guestOf(s);
+      rows.push([s.inAt, s.room, g.name, g.phone, g.idType, g.idNo, g.address, s.pax || 1,
+                 s.nights, dueDate(s), segLabel(s.segment), s.source, s.rate,
+                 stayTotal(s), s.advance || 0, s.payMode, s.note || '']);
+    });
+    download('guest-register-' + today() + '.csv', csv(rows));
+  }
+  function exportGuests() {
+    var rows = [['Name','Phone','Purpose','Stays','Last stay','Total spend','ID type','ID number','Address']];
+    (renderGuests._rows || []).forEach(function (r) {
+      rows.push([r.g.name, r.g.phone, segLabel(r.seg), r.stays, r.last || '',
+                 r.spend, r.g.idType, r.g.idNo, r.g.address]);
+    });
+    download('guest-database-' + today() + '.csv', csv(rows));
+  }
+  function backup() {
+    download('lodge-backup-' + today() + '.json', JSON.stringify(DB, null, 2), 'application/json');
+    toast(t('msgBackup'));
+  }
+  function restore(file) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      try {
+        var d = JSON.parse(fr.result);
+        if (!d || !Array.isArray(d.rooms) || !Array.isArray(d.stays) || !Array.isArray(d.guests)) {
+          throw new Error('shape');
+        }
+        DB = d;
+        save();
+        toast(t('msgRestored'));
+        refresh();
+      } catch (e) { toast(t('msgBadFile')); }
+    };
+    fr.onerror = function () { toast(t('msgBadFile')); };
+    fr.readAsText(file);
+  }
+
+  /* =========================================================
+     SIMULATOR
+     Drives the dashboard with plausible front-desk events so
+     someone can watch how it behaves instead of reading a
+     static board. Demo only; it touches the same data the real
+     app does, so Reset demo puts it back.
+     ========================================================= */
+  var sim = { on: false, timer: null, speed: 1, events: [] };
+  var SPEEDS = [1, 2, 4];
+
+  function feedIcon(kind) {
+    return { in: '\u2193', out: '\u2191', clean: '\u2726', money: '\u20B9' }[kind] || '\u2022';
+  }
+
+  function logEvent(kind, html) {
+    sim.events.unshift({ kind: kind, html: html, at: new Date() });
+    sim.events = sim.events.slice(0, 25);
+    renderFeed();
+  }
+
+  function renderFeed() {
+    var el = $('#feed');
+    if (!el) return;
+    if (!sim.events.length) {
+      el.innerHTML = '<span class="empty-feed">' + esc(t('feedEmpty')) + '</span>';
+      return;
+    }
+    el.innerHTML = sim.events.map(function (e) {
+      var time = e.at.toLocaleTimeString(lang === 'te' ? 'te-IN' : 'en-IN',
+        { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      return '<li><span class="fi fi-' + esc(e.kind) + '" aria-hidden="true">' + feedIcon(e.kind) + '</span>' +
+             '<span>' + e.html + '<span class="ft">' + esc(time) + '</span></span></li>';
+    }).join('');
+  }
+
+  function flashRoom(no) {
+    var card = $('.rm[data-room="' + no + '"]');
+    if (!card) return;
+    card.classList.add('just-changed');
+    setTimeout(function () { card.classList.remove('just-changed'); }, 1200);
+  }
+
+  /* One plausible action, chosen from whatever the board allows. */
+  function simStep() {
+    var vacant = DB.rooms.filter(function (r) { return roomStatus(r) === 'vac'; });
+    var cleaning = DB.rooms.filter(function (r) { return r.state === 'cleaning'; });
+    var owing = DB.stays.filter(function (s) { return !s.outAt && balance(s) > 0; });
+
+    /* Prefer guests whose stay is actually up, but allow any in-house
+       guest to leave. Otherwise, with a freshly seeded board where
+       nothing is due today, the demo never shows a departure and the
+       room cycle (occupied -> cleaning -> vacant) is never visible. */
+    var inHouse = DB.stays.filter(function (s) { return !s.outAt; });
+    var due = inHouse.filter(function (s) { return dueDate(s) <= today(); });
+    var leaving = due.length ? due : inHouse;
+
+    /* Weighted so the board keeps moving through the whole cycle rather
+       than settling into a run of one event type. */
+    var choices = [];
+    if (vacant.length)   choices.push('in', 'in', 'in');
+    if (leaving.length)  choices.push('out', 'out');
+    if (cleaning.length) choices.push('clean', 'clean');
+    if (owing.length)    choices.push('pay');
+    if (!choices.length) {
+      logEvent('clean', esc(t('simIdle')));
+      stopSim();
+      return;
+    }
+
+    var pick = choices[Math.floor(Math.random() * choices.length)];
+
+    if (pick === 'in') {
+      var rm = vacant[Math.floor(Math.random() * vacant.length)];
+      var g = makeDemoGuest();
+      DB.guests.push(g);
+      var nights = 1 + Math.floor(Math.random() * 4);
+      var rate = roomType(rm.type).price;
+      DB.stays.push({
+        id: nextId('s'), room: rm.no, guestId: g.id, inAt: today(), nights: nights,
+        rate: rate, advance: Math.random() < 0.5 ? rate : 0,
+        payMode: ['Cash', 'UPI', 'UPI', 'Card'][Math.floor(Math.random() * 4)],
+        source: ['Walk-in', 'Phone call', 'Google Maps', 'WhatsApp', 'Auto / taxi driver',
+                 'Hospital referral'][Math.floor(Math.random() * 6)],
+        segment: g.segment, pax: 1 + Math.floor(Math.random() * 2), note: '', outAt: null
+      });
+      rm.state = 'vacant';
+      logEvent('in', '<b>' + esc(g.name) + '</b> ' + esc(t('evIn')) + ' <b>' + esc(rm.no) + '</b> ' +
+        esc(t('forNights')) + ' ' + nights + ' ' + esc(t('nightsWord')));
+      afterSimStep(rm.no);
+
+    } else if (pick === 'out') {
+      var st = leaving[Math.floor(Math.random() * leaving.length)];
+      var gg = guestOf(st);
+      st.outAt = new Date().toISOString();
+      st.advance = stayTotal(st);
+      var room = DB.rooms.filter(function (r) { return r.no === st.room; })[0];
+      if (room) room.state = 'cleaning';
+      logEvent('out', '<b>' + esc(gg.name) + '</b> ' + esc(t('evOut')) + ' <b>' + esc(st.room) +
+        '</b> \u00B7 ' + esc(inr(stayTotal(st))));
+      afterSimStep(st.room);
+
+    } else if (pick === 'clean') {
+      var cr = cleaning[Math.floor(Math.random() * cleaning.length)];
+      cr.state = 'vacant';
+      logEvent('clean', (lang === 'te' ? '\u0C17\u0C26\u0C3F ' : 'Room ') + '<b>' + esc(cr.no) + '</b> ' + esc(t('evClean')));
+      afterSimStep(cr.no);
+
+    } else {
+      var ps = owing[Math.floor(Math.random() * owing.length)];
+      var due = balance(ps);
+      ps.advance = stayTotal(ps);
+      logEvent('money', '<b>' + esc(guestOf(ps).name) + '</b> ' + esc(t('evPaid')) +
+        ' <b>' + esc(ps.room) + '</b> \u00B7 ' + esc(inr(due)));
+      afterSimStep(ps.room);
+    }
+  }
+
+  function afterSimStep(roomNo) {
+    save();
+    refresh();
+    renderFeed();
+    if (roomNo) flashRoom(roomNo);
+  }
+
+  function makeDemoGuest() {
+    var pool = DEMO_NAMES[Math.floor(Math.random() * DEMO_NAMES.length)];
+    var seg = ['medical', 'pilgrim', 'transit', 'corporate', 'govt', 'exam', 'family'][Math.floor(Math.random() * 7)];
+    return {
+      id: nextId('g'),
+      name: pool.first[Math.floor(Math.random() * pool.first.length)] + ' ' +
+            pool.last[Math.floor(Math.random() * pool.last.length)],
+      phone: '9' + String(Math.floor(100000000 + Math.random() * 899999999)),
+      idType: ['Aadhaar', 'Voter ID', 'Driving Licence'][Math.floor(Math.random() * 3)],
+      idNo: 'XXXX' + Math.floor(1000 + Math.random() * 8999),
+      address: DEMO_TOWNS[Math.floor(Math.random() * DEMO_TOWNS.length)],
+      segment: seg
+    };
+  }
+
+  function startSim() {
+    if (sim.on) return;
+    sim.on = true;
+    $('#simBtn').classList.add('is-on');
+    $('#simBtn').querySelector('.sim-ic').innerHTML = '&#10074;&#10074;';
+    $('#simLabel').textContent = t('simStop');
+    $('#liveDot').classList.add('on');
+    sim.timer = setInterval(simStep, Math.round(2600 / sim.speed));
+    simStep();
+  }
+  function stopSim() {
+    sim.on = false;
+    clearInterval(sim.timer);
+    sim.timer = null;
+    var btn = $('#simBtn');
+    if (!btn) return;
+    btn.classList.remove('is-on');
+    btn.querySelector('.sim-ic').innerHTML = '&#9654;';
+    $('#simLabel').textContent = t('simStart');
+    $('#liveDot').classList.remove('on');
+  }
+  function toggleSim() { sim.on ? stopSim() : startSim(); }
+  function cycleSpeed() {
+    sim.speed = SPEEDS[(SPEEDS.indexOf(sim.speed) + 1) % SPEEDS.length];
+    $('#simSpeed').textContent = sim.speed + '\u00D7';
+    if (sim.on) { clearInterval(sim.timer); sim.timer = setInterval(simStep, Math.round(2600 / sim.speed)); }
+  }
+  function resetDemo() {
+    stopSim();
+    sim.events = [];
+    DB = { rooms: [], stays: [], guests: [], seq: 1 };
+    DB.rooms = buildRooms();
+    seed();
+    save();
+    refresh();
+    renderFeed();
+    toast(t('resetDone'));
+  }
+
+  /* =========================================================
+     SEED — sample history so the reports are not empty
+     ========================================================= */
+  function seed() {
+    var namePools = DEMO_NAMES;
+    var towns = DEMO_TOWNS;
+    var idTypes = ['Aadhaar','Voter ID','Driving Licence','PAN'];
+    var segWeights = ['medical','medical','medical','pilgrim','pilgrim','pilgrim','transit','transit',
+                      'corporate','corporate','govt','exam','family','wedding'];
+    var srcWeights = ['Walk-in','Walk-in','Walk-in','Phone call','Phone call','Google Maps','Google Maps',
+                      'WhatsApp','MakeMyTrip','Goibibo','Auto / taxi driver','Hospital referral',
+                      'Travel agent','Repeat guest','Website'];
+
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    function phone() { return '9' + String(Math.floor(100000000 + Math.random() * 899999999)); }
+
+    var used = {};   // room -> last occupied date, to avoid overlaps
+    for (var day = 45; day >= 0; day--) {
+      var d = addDays(today(), -day);
+      var arrivals = 2 + Math.floor(Math.random() * 4);
+      for (var a = 0; a < arrivals; a++) {
+        var rm = pick(DB.rooms);
+        if (used[rm.no] && used[rm.no] > d) continue;
+        var ty = roomType(rm.type);
+        var seg = pick(segWeights);
+        // medical and corporate guests stay much longer
+        var n = seg === 'medical' ? 3 + Math.floor(Math.random() * 8)
+              : seg === 'corporate' ? 4 + Math.floor(Math.random() * 10)
+              : 1 + Math.floor(Math.random() * 2);
+        if (addDays(d, n) > addDays(today(), 3)) n = Math.max(1, daysBetween(d, addDays(today(), 3)));
+
+        var pool = pick(namePools);
+        var g = {
+          id: nextId('g'),
+          name: pick(pool.first) + ' ' + pick(pool.last),
+          phone: phone(),
+          idType: pick(idTypes),
+          idNo: 'XXXX' + Math.floor(1000 + Math.random() * 8999),
+          address: pick(towns),
+          segment: seg
+        };
+        DB.guests.push(g);
+
+        // pricing is flat, so every stay bills at the same rate
+        var rate = ty.price;
+
+        var ended = addDays(d, n) <= today();
+        DB.stays.push({
+          id: nextId('s'), room: rm.no, guestId: g.id, inAt: d, nights: n, rate: rate,
+          advance: ended ? rate * n : Math.round(rate * 0.5),
+          payMode: pick(['Cash','UPI','UPI','Card','OTA / prepaid']),
+          source: pick(srcWeights), segment: seg,
+          pax: 1 + Math.floor(Math.random() * 3), note: '',
+          outAt: ended ? new Date(addDays(d, n) + 'T11:00:00').toISOString() : null
+        });
+        used[rm.no] = addDays(d, n);
+      }
+    }
+  }
+
+  /* =========================================================
+     BOOT
+     ========================================================= */
+  function applyI18n() {
+    document.body.classList.toggle('te', lang === 'te');
+    document.documentElement.lang = lang;
+    $$('[data-i]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i')); });
+    $('#langBtn').textContent = lang === 'en' ? 'తెలుగు' : 'English';
+    $('#topName').textContent = (lang === 'te' ? C.nameTe : C.name);
+    $('#topDate').textContent = new Date().toLocaleDateString(lang === 'te' ? 'te-IN' : 'en-IN',
+      { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    $('#regSearch').placeholder = lang === 'te' ? 'పేరు, ఫోన్, గది, ఐడీ…' : 'Name, phone, room, ID…';
+    $('#gSearch').placeholder = lang === 'te' ? 'పేరు లేదా ఫోన్ వెతకండి…' : 'Search name or phone…';
+
+    var segOpts = SEGMENTS.map(function (s) {
+      return '<option value="' + s[0] + '">' + esc(lang === 'te' ? s[2] : s[1]) + '</option>';
+    }).join('');
+    $('#ciSeg').innerHTML = segOpts;
+    $('#gSeg').innerHTML = '<option value="">' + esc(t('allSegments')) + '</option>' + segOpts;
+    $('#ciSource').innerHTML = SOURCES.map(function (s) { return '<option>' + esc(s) + '</option>'; }).join('');
+  }
+
+  function refresh() {
+    renderBoard(); renderToday(); renderRegister(); renderGuests(); renderReports();
+    // Tapping play before the rooms exist finds nothing to do and stops at
+    // once, which is indistinguishable from a dead button.
+    var btn = $('#simBtn');
+    if (btn) btn.disabled = !DB.rooms.length;
+  }
+
+  function init() {
+    if (!load()) {
+      DB.rooms = buildRooms();
+      seed();
+      save();
+      setTimeout(function () { toast(t('seeded')); }, 700);
+    }
+    if (!DB.rooms || !DB.rooms.length) { DB.rooms = buildRooms(); save(); }
+
+    try {
+      var sl = localStorage.getItem('lodge.lang');
+      if (sl === 'te' || sl === 'en') lang = sl;
+    } catch (_) {}
+
+    applyI18n();
+
+    // default register window: last 30 days
+    $('#regFrom').value = addDays(today(), -30);
+    $('#regTo').value = today();
+
+    refresh();
+
+    /* tabs */
+    $$('.tab').forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('.tab').forEach(function (x) { x.classList.toggle('is-on', x === b); });
+        var id = b.getAttribute('data-tab');
+        $$('.panel').forEach(function (p) { p.classList.toggle('is-on', p.id === 'p-' + id); });
+      });
+    });
+
+    /* language */
+    $('#langBtn').addEventListener('click', function () {
+      lang = lang === 'en' ? 'te' : 'en';
+      try { localStorage.setItem('lodge.lang', lang); } catch (_) {}
+      applyI18n();
+      $('#simLabel').textContent = sim.on ? t('simStop') : t('simStart');
+      refresh();
+      renderFeed();
+    });
+
+    /* overlays: close buttons, backdrop click and Escape */
+    $$('[data-close]').forEach(function (b) {
+      b.addEventListener('click', function () { closeOverlay(b.getAttribute('data-close')); });
+    });
+    $$('.dlg-wrap').forEach(function (w) {
+      w.addEventListener('click', function (e) { if (e.target === w) closeOverlay(w.id); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAllOverlays();
+    });
+
+    /* Check in only once the browser agrees the form is valid, then close. */
+    $('#ciConfirm').addEventListener('click', function () {
+      var f = $('#ciForm');
+      if (f.reportValidity && !f.reportValidity()) return;
+      closeOverlay('ciWrap');
+      doCheckIn();
+    });
+    $('#ciForm').addEventListener('submit', function (e) { e.preventDefault(); });
+    ['nights', 'rate', 'advance'].forEach(function (n) {
+      $('#ciForm')[n].addEventListener('input', updateCalc);
+    });
+
+    /* filters */
+    ['#regFrom', '#regTo'].forEach(function (s) { $(s).addEventListener('change', renderRegister); });
+    $('#regSearch').addEventListener('input', renderRegister);
+    $('#gSearch').addEventListener('input', renderGuests);
+    $('#gSeg').addEventListener('change', renderGuests);
+    $('#repDays').addEventListener('change', renderReports);
+
+    /* simulator controls */
+    $('#simBtn').addEventListener('click', toggleSim);
+    $('#simSpeed').addEventListener('click', cycleSpeed);
+    $('#resetBtn').addEventListener('click', resetDemo);
+    renderFeed();
+    // never leave a timer running behind a hidden tab
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && sim.on) stopSim();
+    });
+
+    /* exports & backup */
+    $('#regCsv').addEventListener('click', exportRegister);
+    $('#gCsv').addEventListener('click', exportGuests);
+    $('#backupBtn').addEventListener('click', backup);
+    $('#restoreBtn').addEventListener('click', function () { $('#restoreFile').click(); });
+    $('#restoreFile').addEventListener('change', function (e) {
+      if (e.target.files && e.target.files[0]) restore(e.target.files[0]);
+      e.target.value = '';
+    });
+  }
+
+  /* If anything in init() throws, the page would otherwise render as a
+     blank white screen with no clue why. Show the error instead. */
+  function boot() {
+    try {
+      init();
+    } catch (e) {
+      var box = document.createElement('div');
+      box.setAttribute('role', 'alert');
+      box.style.cssText = 'margin:24px;padding:20px;border:2px solid #b31b3f;border-radius:12px;' +
+        'background:#fdeef2;color:#141a2b;font:15px/1.6 system-ui,sans-serif;max-width:640px';
+      box.innerHTML = '<strong style="display:block;font-size:17px;margin-bottom:8px">' +
+        'The reception desk could not start</strong>' +
+        '<p style="margin:0 0 10px">Reload the page. If it keeps failing, the browser may be ' +
+        'blocking local storage \u2014 try a normal window rather than a private one.</p>' +
+        '<code style="display:block;padding:10px;background:#fff;border-radius:8px;' +
+        'font-size:13px;word-break:break-word"></code>';
+      box.querySelector('code').textContent = (e && e.message) || String(e);
+      document.body.insertBefore(box, document.body.firstChild);
+    }
+  }
+
+  /* Let the browser paint the header, tabs and legend before doing the
+     seeding and five renders. Otherwise a slow device shows nothing at
+     all until all of that finishes. */
+  function start() {
+    if (window.requestAnimationFrame) requestAnimationFrame(function () { setTimeout(boot, 0); });
+    else setTimeout(boot, 0);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
+
+</script>
+</body>
+</html>

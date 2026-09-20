@@ -80,6 +80,23 @@ changing.
 
 ---
 
+## Single-file copies
+
+`node build-standalone.js` writes `standalone/front-desk.html` and
+`standalone/website.html` — each a complete page with the stylesheet, the
+script, the config and the images inlined.
+
+The normal pages fetch four or five separate files. Every one of those is a
+chance for a slow connection, an in-app browser or a stale cache to serve
+something wrong, and a half-loaded page looks broken with no explanation.
+The standalone copies make exactly **one** request: once the HTML arrives,
+the page is complete.
+
+Use them when you need the demo to work somewhere you do not control — a
+link sent to someone else, a phone on patchy mobile data, an in-app browser
+inside WhatsApp or similar. Rebuild them after any change to `config.js` or
+the source pages; they are generated, not edited.
+
 ## Hosting
 
 The website is static files, so it hosts free on GitHub Pages, Netlify or
